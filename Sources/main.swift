@@ -1,42 +1,93 @@
-enum Tree: ExpressibleByIntegerLiteral {
-    case empty
-    indirect case subtree(branches: [Tree], payload: Int)
+// struct Leaf {
+//     var radius: Int
+// }
 
-    init(payload: Int) {
-        self = .subtree(branches: [], payload: payload)
+
+// struct Branch {
+//     var branches: [Branch] = []
+//     var leaves: [Leaf] = []
+//     var radius: Int {
+//         var resultRadius = 0
+//         for leaf in leaves {
+//             resultRadius += leaf.radius
+//         }
+//         for branch in branches {
+//             resultRadius += branch.radius
+//         }
+//         return resultRadius
+//     }
+// }
+
+typealias FloatType = Double
+
+enum CircleItem: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
+    case branch(children: [CircleItem])
+    case leaf(radius: FloatType)
+
+    var count: Int {
+        switch self {
+        case let .branch(children):
+            return children.reduce(1) { $0 + $1.count }
+        case .leaf:
+            return 1
+        }
     }
 
-    init(integerLiteral value: Int) {
-        self = .subtree(branches: [], payload: value)
+    init(floatLiteral value: FloatType) {
+        self = .leaf(radius: value)
+    }
+
+    init(arrayLiteral elements: CircleItem...) {
+        self = .branch(children: elements)
     }
 }
 
-let tree: Tree = .subtree(
-    branches: [
-        .subtree(
-            branches: [
-                .subtree(branches: [7], payload: 5),
-                .subtree(branches: [3], payload: 4),
-            ],
-            payload: 6
-        ),
-        9
-    ],
-    payload: 1
-)
+struct CircleNode {
+    enum State {
+        case leaf
+        case branch(children: [CircleNode])
+    }
 
-func summarize(tree: Tree) -> Int {
-    switch tree {
-        case .empty:
-            return 0
-        case .subtree(let branches, let payload):
-            var result = payload
-            for branche in branches {
-                result += summarize(tree: branche)
-            }
-            return result
+    var state: State
+    var radius: FloatType
+}
+
+func pack(item: CircleItem) -> CircleNode {
+    switch item {
+    case let .leaf(radius):
+        return CircleNode(state: .leaf, radius: radius)
+    case let .branch(children):
+        fatalError()
     }
 }
 
-print(summarize(tree: tree))
+let treeItem: CircleItem = [9.0, 10.0, 11.0, [10.0, 12.0, [13.0]]]
 
+//
+// Expected result of the pack function:
+//
+// let treeNode = CircleNode(
+//     state: .branch(children: [
+//         CircleNode(state: .leaf, radius: 9.0),
+//         CircleNode(state: .leaf, radius: 10.0),
+//         CircleNode(state: .leaf, radius: 11.0),
+//         CircleNode(
+//             state: .branch(children: [
+//                 CircleNode(state: .leaf, radius: 10.0),
+//                 CircleNode(state: .leaf, radius: 12.0),
+//                 CircleNode(
+//                     state: .branch(children: [
+//                         CircleNode(state: .leaf, radius: 13.0),
+//                     ]),
+//                     radius: 13.0
+//                 )
+//             ]),
+//             radius: 35.0
+//         ),
+//     ]),
+//     radius: 65.0
+// )
+//
+let treeNode = pack(item: treeItem)
+
+print(treeNode.radius)
