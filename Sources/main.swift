@@ -1,93 +1,44 @@
-// struct Leaf {
-//     var radius: Int
-// }
+typealias Distance = FloatType
 
+struct Point {
+    var x: Distance
+    var y: Distance
 
-// struct Branch {
-//     var branches: [Branch] = []
-//     var leaves: [Leaf] = []
-//     var radius: Int {
-//         var resultRadius = 0
-//         for leaf in leaves {
-//             resultRadius += leaf.radius
-//         }
-//         for branch in branches {
-//             resultRadius += branch.radius
-//         }
-//         return resultRadius
-//     }
-// }
+    static var zero: Point { Point(x: .zero, y: .zero) }
 
-typealias FloatType = Double
+    static prefix func - (p: Point) -> Point { Point(x: -p.x, y: -p.y) }
 
-enum CircleItem: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
-    case branch(children: [CircleItem])
-    case leaf(radius: FloatType)
+    static func - (a: Point, b: Point) -> Point { Point(x: a.x - b.x, y: a.y - b.y) }
+    static func -= (lhs: inout Point, rhs: Point) { lhs = lhs - rhs }
 
-    var count: Int {
-        switch self {
-        case let .branch(children):
-            return children.reduce(1) { $0 + $1.count }
-        case .leaf:
-            return 1
-        }
-    }
+    // static func + (a: Point, b: Point) -> Point { ... }
+    // static func += (lhs: inout Point, rhs: Point) { ... }
 
-    init(floatLiteral value: FloatType) {
-        self = .leaf(radius: value)
-    }
+    // static func *= (p: inout Point, m: Distance)
+    // static func /= (p: inout Point, d: Distance)
 
-    init(arrayLiteral elements: CircleItem...) {
-        self = .branch(children: elements)
-    }
+    // func distance(to point: Point) -> Distance { ... }
 }
 
-struct CircleNode {
-    enum State {
-        case leaf
-        case branch(children: [CircleNode])
-    }
+struct Size {
+    var width: Distance
+    var height: Distance
 
-    var state: State
-    var radius: FloatType
+    static var zero: Size { Size(width: .zero, height: .zero) }
 }
 
-func pack(item: CircleItem) -> CircleNode {
-    switch item {
-    case let .leaf(radius):
-        return CircleNode(state: .leaf, radius: radius)
-    case let .branch(children):
-        fatalError()
-    }
+struct Rect {
+    var origin: Point
+    var size: Size
+
+    static var zero: Rect { Rect(origin: .zero, size: .zero) }
+
+    // var center: Point { ... }
+
+    /// Returns the smallest rectangle that contains all source points.
+    // static func union(_ points: [Point]) -> Rect { ... }
 }
 
-let treeItem: CircleItem = [9.0, 10.0, 11.0, [10.0, 12.0, [13.0]]]
-
-//
-// Expected result of the pack function:
-//
-// let treeNode = CircleNode(
-//     state: .branch(children: [
-//         CircleNode(state: .leaf, radius: 9.0),
-//         CircleNode(state: .leaf, radius: 10.0),
-//         CircleNode(state: .leaf, radius: 11.0),
-//         CircleNode(
-//             state: .branch(children: [
-//                 CircleNode(state: .leaf, radius: 10.0),
-//                 CircleNode(state: .leaf, radius: 12.0),
-//                 CircleNode(
-//                     state: .branch(children: [
-//                         CircleNode(state: .leaf, radius: 13.0),
-//                     ]),
-//                     radius: 13.0
-//                 )
-//             ]),
-//             radius: 35.0
-//         ),
-//     ]),
-//     radius: 65.0
-// )
-//
-let treeNode = pack(item: treeItem)
-
-print(treeNode.radius)
+let p1 = Point(x: 1, y: 1)
+let p2 = Point(x: 2, y: 2)
+print(p1.distance(to: p2))
