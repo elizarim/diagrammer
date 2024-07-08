@@ -1,3 +1,5 @@
+import Foundation
+
 typealias Distance = FloatType
 
 struct Point {
@@ -11,13 +13,25 @@ struct Point {
     static func - (a: Point, b: Point) -> Point { Point(x: a.x - b.x, y: a.y - b.y) }
     static func -= (lhs: inout Point, rhs: Point) { lhs = lhs - rhs }
 
-    // static func + (a: Point, b: Point) -> Point { ... }
-    // static func += (lhs: inout Point, rhs: Point) { ... }
+    static func + (a: Point, b: Point) -> Point { Point(x: a.x + b.x, y: a.y + b.y) }
+    static func += (lhs: inout Point, rhs: Point) { lhs = lhs + rhs }
 
-    // static func *= (p: inout Point, m: Distance)
-    // static func /= (p: inout Point, d: Distance)
 
-    // func distance(to point: Point) -> Distance { ... }
+    static func *= (p: inout Point, m: Distance) { 
+        p.x *= m 
+        p.y *= m 
+    }
+    static func /= (p: inout Point, d: Distance) {
+        p.x /= d
+        p.y /= d
+    }
+
+    func distance(to point: Point) -> Distance {
+        let dx = x - point.x
+        let dy = y - point.y
+        return sqrt(dx * dx + dy * dy)
+    }
+        
 }
 
 struct Size {
@@ -33,7 +47,9 @@ struct Rect {
 
     static var zero: Rect { Rect(origin: .zero, size: .zero) }
 
-    // var center: Point { ... }
+    var center: Point {
+        Point(x: origin.x + size.width / 2, y: origin.y + size.height / 2)
+    }
 
     /// Returns the smallest rectangle that contains all source points.
     // static func union(_ points: [Point]) -> Rect { ... }
