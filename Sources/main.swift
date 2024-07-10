@@ -51,10 +51,37 @@ struct Rect {
         Point(x: origin.x + size.width / 2, y: origin.y + size.height / 2)
     }
 
-    /// Returns the smallest rectangle that contains all source points.
-    // static func union(_ points: [Point]) -> Rect { ... }
+    static func union(points: [Point]) -> Rect {
+        guard !points.isEmpty else {
+            return .zero
+        }
+        var minX = points[0].x
+        var maxX = points[0].x
+        var minY = points[0].y
+        var maxY = points[0].y
+        for point in points {
+            if point.x < minX { 
+                minX = point.x 
+            }
+            if point.x > maxX { 
+                maxX = point.x 
+            }
+            if point.y < minY { 
+                minY = point.y 
+            }
+            if point.y > maxY {
+                maxY = point.y 
+            }
+        }
+        return Rect(
+            origin: Point(x: minX, y: minY),
+            size: Size(width: maxX - minX, height: maxY - minY)
+        )
+    }
 }
 
 let p1 = Point(x: 1, y: 1)
 let p2 = Point(x: 2, y: 2)
 print(p1.distance(to: p2))
+
+let rect = Rect.union(points: [])
