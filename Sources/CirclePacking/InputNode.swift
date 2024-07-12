@@ -1,5 +1,9 @@
 typealias FloatType = Double
 
+extension FloatType {
+  static let epsilon = FloatType(Float.ulpOfOne)
+}
+
 enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
     case branch(children: [InputNode])
     case leaf(radius: FloatType)

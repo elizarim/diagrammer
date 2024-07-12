@@ -1,13 +1,13 @@
 import Foundation
 
-struct Size {
+struct Size: Equatable {
     var width: Distance
     var height: Distance
 
     static var zero: Size { Size(width: .zero, height: .zero) }
 }
 
-struct Rect {
+struct Rect: Equatable {
     var origin: Point
     var size: Size
 
@@ -17,7 +17,7 @@ struct Rect {
         Point(x: origin.x + size.width / 2, y: origin.y + size.height / 2)
     }
 
-    static func union(points: [Point]) -> Rect {
+    static func union(_ points: [Point]) -> Rect {
         guard !points.isEmpty else {
             return .zero
         }
