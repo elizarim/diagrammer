@@ -26,7 +26,24 @@ struct Line {
 
     /// Locates collision points with circle which center is located at the origin of coordinates.
     func collideCircle(with radius: CircleRadius) -> Points {
-        return Points()
+        let x0 = -a*c/(a*a+b*b)
+        let y0 = -b*c/(a*a+b*b)
+
+        if c*c > radius*radius*(a*a+b*b)+EPS {
+            print("no points")
+        } else if abs(c*c - radius*radius*(a*a+b*b)) < EPS {
+            print("1 point")
+            print("\(x0) : \(y0)")
+        } else {
+            let d = radius*radius - c*c/(a*a+b*b)
+            let mult = sqrt(d / (a*a+b*b))
+            let ax = x0 + b * mult
+            let bx = x0 - b * mult
+            let ay = y0 - a * mult
+            let by = y0 + a * mult
+            print("2 points")
+            print("\(ax) : \(ay) , \(bx) : \(by)")
+        }
     }
 }
 
