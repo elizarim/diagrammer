@@ -1,6 +1,6 @@
 import Foundation
 
-public typealias CircleRadius = Distance
+typealias CircleRadius = Distance
 
 struct Points {
     var first: Point?
