@@ -1,5 +1,3 @@
-typealias CircleRadius = Distance
-
 struct CircleNode {
     enum State {
         case leaf
