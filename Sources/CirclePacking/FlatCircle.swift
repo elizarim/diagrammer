@@ -21,9 +21,16 @@ struct FlatCircle: Equatable {
 
     /// Places that circle to the right of the source circle.
     mutating func put(nextTo peer: FlatCircle) {
+        center = Point(x: peer.center.x + peer.radius + radius, y: peer.center.y)
     }
 
     /// Makes that circle tangent to source circles.
     mutating func put(between a: FlatCircle, _ b: FlatCircle) {
+        let A = FlatCircle(radius: a.radius + radius, center: a.center)
+        let B = FlatCircle(radius: b.radius + radius, center: b.center)
+            
+        let pointsOfIntersection = A.collide(with: B)
+            
+        center = pointsOfIntersection.first!
     }
 }
