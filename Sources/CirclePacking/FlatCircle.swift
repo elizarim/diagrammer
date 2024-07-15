@@ -26,11 +26,8 @@ struct FlatCircle: Equatable {
 
     /// Makes that circle tangent to source circles.
     mutating func put(between a: FlatCircle, _ b: FlatCircle) {
-        let A = FlatCircle(radius: a.radius + radius, center: a.center)
-        let B = FlatCircle(radius: b.radius + radius, center: b.center)
-            
-        let pointsOfIntersection = A.collide(with: B)
-            
-        center = pointsOfIntersection.first!
+        let a = FlatCircle(radius: a.radius + radius, center: a.center)
+        let b = FlatCircle(radius: b.radius + radius, center: b.center)
+        center = a.collide(with: b).first!
     }
 }
