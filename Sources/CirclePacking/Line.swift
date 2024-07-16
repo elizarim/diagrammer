@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents line in general form A\*x + B\*y + C = 0.
-struct Line {
+public struct Line {
     let a: FloatType
     let b: FloatType
     let c: FloatType

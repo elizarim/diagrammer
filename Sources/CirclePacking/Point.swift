@@ -1,8 +1,8 @@
 import Foundation
 
-typealias Distance = FloatType
+public typealias Distance = FloatType
 
-struct Point: Equatable {
+public struct Point: Equatable {
     var x: Distance
     var y: Distance
 

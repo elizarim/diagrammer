@@ -1,8 +1,8 @@
 import Foundation
 
-typealias CircleRadius = Distance
+public typealias CircleRadius = Distance
 
-struct FlatCircle: Equatable {
+public struct FlatCircle: Equatable {
     var radius: CircleRadius
     var center: Point
 
@@ -29,5 +29,12 @@ struct FlatCircle: Equatable {
         let a = FlatCircle(radius: a.radius + radius, center: a.center)
         let b = FlatCircle(radius: b.radius + radius, center: b.center)
         center = a.collide(with: b).first!
+    }
+
+    func rectForFlatCircle() -> Rect {
+            return Rect(
+                origin: Point(x: center.x - radius, y: center.y - radius),
+                size: Size(width: radius * 2, height: radius * 2)
+            )
     }
 }

@@ -16,7 +16,7 @@ class PointTests: XCTestCase {
         XCTAssertEqual(c, Point(x: -1, y: 0))
         a *= 2
         XCTAssertEqual(a, Point(x: 20, y: 20))
-        a /= 2
+        a /= 4
         XCTAssertEqual(a, Point(x: 5, y: 5))
     }
 }

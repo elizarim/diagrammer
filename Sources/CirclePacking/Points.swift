@@ -1,6 +1,6 @@
 import Foundation
 
-struct Points {
+public struct Points {
     var first: Point?
     var second: Point?
 

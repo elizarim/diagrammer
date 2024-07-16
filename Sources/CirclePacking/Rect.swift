@@ -1,13 +1,13 @@
 import Foundation
 
-struct Size: Equatable {
+public struct Size: Equatable {
     var width: Distance
     var height: Distance
 
     static var zero: Size { Size(width: .zero, height: .zero) }
 }
 
-struct Rect: Equatable {
+public struct Rect: Equatable {
     var origin: Point
     var size: Size
 

@@ -1,4 +1,4 @@
-typealias FloatType = Double
+public typealias FloatType = Double
 
 extension FloatType {
   static let epsilon = FloatType(Float.ulpOfOne)

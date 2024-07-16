@@ -1,4 +1,5 @@
 import AppKit
+import CirclePacking
 
 /// Possible errors in the app.
 enum AppError: Error, CustomStringConvertible {
@@ -34,11 +35,19 @@ func composeDiagramURL() -> URL {
     return documentsURL.appendingPathComponent("diagram.png")
 }
 
+let a = FlatCircle(radius: 20, center: Point(x: -25, y: 0))
+var b = FlatCircle(radius: 20, center: .zero)
+b.put(nextTo: a)
+var c = FlatCircle(radius: 20, center: .zero)
+c.put(between: b, a)
+
 func drawDiagram(in rect: NSRect) -> Bool {
     NSColor.black.set()
     rect.fill()
     NSColor.yellow.set()
-    NSBezierPath(ovalIn: NSRect(x: 25, y: 25, width: 50, height: 50)).fill()
+    NSBezierPath(ovalIn: a.rectForFlatCircle().fill())
+    NSBezierPath(ovalIn: b.rectForFlatCircle().fill())
+    NSBezierPath(ovalIn: c.rectForFlatCircle().fill())
     return true
 }
 
