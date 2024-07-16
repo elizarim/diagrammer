@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "string",
+    name: "higapp",
     targets: [
         .target(name: "CirclePacking"),
         .testTarget(name: "CirclePackingTests", dependencies: ["CirclePacking"]),

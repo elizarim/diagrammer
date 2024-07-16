@@ -20,7 +20,6 @@ public struct Line {
         let rr = radius*radius
         let x0 = -a*c/aabb
         let y0 = -b*c/aabb
-        print("f=\(abs(cc - rr*aabb)), epsilon=\(FloatType.epsilon)")
         if cc - rr*aabb > .epsilon {
           return Points(first: nil, second: nil)
         } else if abs(cc - rr*aabb) < .epsilon {

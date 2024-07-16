@@ -3,10 +3,15 @@ import Foundation
 public typealias Distance = FloatType
 
 public struct Point: Equatable {
-    var x: Distance
-    var y: Distance
+    public var x: Distance
+    public var y: Distance
 
-    static var zero: Point { Point(x: .zero, y: .zero) }
+    public init(x: Distance, y: Distance) {
+        self.x = x
+        self.y = y
+    }
+
+    public static var zero: Point { Point(x: .zero, y: .zero) }
 
     static prefix func - (p: Point) -> Point { Point(x: -p.x, y: -p.y) }
 
@@ -19,9 +24,5 @@ public struct Point: Equatable {
     static func *= (p: inout Point, m: Distance) { p.x *= m; p.y *= m }
     static func /= (p: inout Point, d: Distance) { p.x /= d; p.y /= d }
 
-    func distance(to point: Point) -> Distance {
-        let dx = x - point.x
-        let dy = y - point.y
-        return sqrt(dx * dx + dy * dy)
-    }
+    func distance(to point: Point) -> Distance { hypot(x - point.x, y - point.y) }
 }
