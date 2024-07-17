@@ -57,28 +57,42 @@ func drawDiagram(drawingHandler: @escaping (NSRect) -> Bool) {
 }
 
 
-let a = FlatCircle(radius: 20, center: Point(x: 30, y: 30))
+let a = FlatCircle(radius: 20, center: .zero)
 var b = FlatCircle(radius: 20, center: .zero)
-b.put(nextTo: a)
 var c = FlatCircle(radius: 20, center: .zero)
-c.put(between: a, b)
+var d = FlatCircle(radius: 25, center: .zero)
+var e = FlatCircle(radius: 10, center: Point(x: 30, y: 30))
+
 
 func orderCircles(_ circles: [FlatCircle]) -> [FlatCircle] {
-    // 1. Сортирует массив circles по возрастанию радиуса
-    // 2. Располагает вторую окружность рядом с первой
-    // 3. Цикл по всем окружностям
-    //    3.1 Пробуем расположить current-окружность между окружностями pivot и head
-    //    3.2 Смотрим, есть ли окружности между pivot + 1 и head - 1, с которой пересекается current
-    //        (для этого используем метод firstCollisionIndex)
-    //    3.2.1 Если такая окружность найдена, то назначаем её в качестве pivot и повторяем процедуру с шага 3.1
-    //    3.2.2 Если такая окружность не найдена, то назначаем её в качестве head и переходим к расположению следующей окружности.
-    return circles
+    guard circles.count > 1 else { return circles }
+
+    var sortedCircles = circles.sorted { $0.radius < $1.radius }
+    var orderedCircles: [FlatCircle] = []
+    orderedCircles.append(sortedCircles[0])
+    sortedCircles[1].put(nextTo: sortedCircles[0])
+    orderedCircles.append(sortedCircles[1])
+    var pivot = 0
+    var head = 1
+    for i in 2..<sortedCircles.count {
+        var currentCircle = sortedCircles[i]
+        currentCircle.put(between: orderedCircles[pivot], orderedCircles[head])
+        if let collisionCircle = currentCircle.firstCollisionIndex(in: orderedCircles, between: pivot + 1, head) {
+            pivot = collisionCircle
+        } else {
+            head += 1
+            orderedCircles.append(currentCircle)
+        }
+    }
+    return orderedCircles
 }
+
+
 
 drawDiagram { rect in
     NSColor.black.set()
     rect.fill()
     NSColor.yellow.set()
-    orderCircles([a, b, c]).forEach { $0.bezierPath.fill() }
+    orderCircles([a, b, c, d, e]).forEach { $0.bezierPath.fill() }
     return true
 }

@@ -12,10 +12,15 @@ public struct FlatCircle: Equatable {
     }
 
     /// Returns the minimal index of the circle in the source range who collides with that circle.
-    func firstCollisionIndex(
+    public func firstCollisionIndex(
       in circles: [FlatCircle],
       between lower: Int, _ upper: Int
     ) -> Int? {
+        for i in lower..<upper {
+            if self.collides(with: circles[i]) {
+                return i
+            }
+        }
         return nil
     }
 
