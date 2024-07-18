@@ -60,12 +60,36 @@ var a = FlatCircle(radius: 20, center: .zero)
 var b = FlatCircle(radius: 20, center: .zero)
 var c = FlatCircle(radius: 20, center: .zero)
 var d = FlatCircle(radius: 25, center: .zero)
-var e = FlatCircle(radius: 10, center: Point(x: 125, y: 125))
+var e = FlatCircle(radius: 10, center: Point(x: 125, y: 175))
 var f = FlatCircle(radius: 20, center: .zero)
 var g = FlatCircle(radius: 30, center: .zero)
 var h = FlatCircle(radius: 35, center: .zero)
 var i = FlatCircle(radius: 20, center: .zero)
 var j = FlatCircle(radius: 40, center: .zero)
+
+private extension Array where Element == FlatCircle {
+  mutating func orderSpatially(padding: Distance) {
+    guard count > 1 else {
+      return
+    }
+    sort { $0.radius < $1.radius }
+    self[1].put(nextTo: self[0], padding: padding)
+    var pivot = 0, current = 2
+    while current < count {
+      let head = current - 1
+      assert(pivot != head)
+      var circle = self[current]
+      circle.put(between: self[head], self[pivot], padding: padding)
+      if let collision =
+          circle.firstCollisionIndex(in: self, between: pivot + 1, head - 1, padding: padding) {
+        pivot = collision
+        continue
+      }
+      self[current] = circle
+      current += 1
+    }
+  }
+}
 
 func orderCircles(_ circles: [FlatCircle], padding: Distance) -> [FlatCircle] {
     guard circles.count > 1 else {
@@ -74,15 +98,15 @@ func orderCircles(_ circles: [FlatCircle], padding: Distance) -> [FlatCircle] {
     var sortedCircles = circles.sorted { $0.radius < $1.radius }
     var orderedCircles: [FlatCircle] = []
     orderedCircles.append(sortedCircles[0])
-    sortedCircles[1].put(nextTo: sortedCircles[0], padding: 5)
+    sortedCircles[1].put(nextTo: sortedCircles[0], padding: padding)
     orderedCircles.append(sortedCircles[1])
     var pivot = 0
     var head = 1
     for i in 2..<sortedCircles.count {
         var currentCircle = sortedCircles[i]
         repeat {
-            currentCircle.put(between: orderedCircles[pivot], orderedCircles[head], padding: 5)
-            if let collisionCircle = currentCircle.firstCollisionIndex(in: orderedCircles, between: pivot + 1, head - 1) {
+            currentCircle.put(between: orderedCircles[pivot], orderedCircles[head], padding: padding)
+            if let collisionCircle = currentCircle.firstCollisionIndex(in: orderedCircles, between: pivot + 1, head - 1, padding: padding) {
                 pivot = collisionCircle
             } else {
                 head += 1
@@ -98,6 +122,9 @@ drawDiagram { rect in
     NSColor.black.set()
     rect.fill()
     NSColor.yellow.set()
-    orderCircles([a, b, c, d, e, f, g, h, i, j], padding: 5).forEach { $0.bezierPath.fill() }
+    orderCircles([a, b, c, d, e, f, g, h, i, j], padding: 8).forEach { $0.bezierPath.fill() }
+//    var circles = [a, b, c, d, e, f, g, h, i, j]
+//    circles.orderSpatially(padding: 25)
+//    circles.forEach { $0.bezierPath.fill() }
     return true
 }

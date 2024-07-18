@@ -58,6 +58,6 @@ public struct FlatCircle: Equatable {
     public mutating func put(between a: FlatCircle, _ b: FlatCircle, padding: Distance = .zero) {
         let a = FlatCircle(radius: a.radius + radius + padding, center: a.center)
         let b = FlatCircle(radius: b.radius + radius + padding, center: b.center)
-        center = a.collide(with: b).first!
+        center = b.collide(with: a).first!
     }
 }

@@ -32,7 +32,7 @@ class CircleTests: XCTestCase {
       b.put(nextTo: a, padding: 10)
       var c = FlatCircle(radius: 20, center: .zero)
       c.put(between: b, a, padding: 10)
-      XCTAssertEqual(c.center.rounded(floatingPoints: 0), Point(x: 0, y: -43))
+      XCTAssertEqual(c.center.rounded(floatingPoints: 0), Point(x: 0, y: 43))
       XCTAssertFalse([a, b, c].hasCollisions())
     }
 
