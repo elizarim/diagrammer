@@ -13,20 +13,27 @@ public struct FlatCircle: Equatable {
 
     /// Returns the minimal index of the circle in the source range who collides with that circle.
     public func firstCollisionIndex(
-      in circles: [FlatCircle],
-      between lower: Int, _ upper: Int
+        in circles: [FlatCircle],
+        between lower: Int, _ upper: Int,
+        padding: Distance = .zero
     ) -> Int? {
-        for i in lower..<upper {
-            if self.collides(with: circles[i], padding: 5) {
-                return i
-            }
+        guard lower < circles.count else {
+          return nil
+        }
+        var current = lower
+        while current <= upper {
+          if collides(with: circles[current], padding: padding) {
+            return current
+          } else {
+            current += 1
+          }
         }
         return nil
     }
 
     /// Determines whether or not source circle has collision points with that circle.
-    func collides(with circle: FlatCircle, padding: Distance) -> Bool {
-      center.distance(to: circle.center) - radius - circle.radius < padding - .epsilon
+    func collides(with circle: FlatCircle, padding: Distance = .zero) -> Bool {
+        center.distance(to: circle.center) - radius - circle.radius < padding - .epsilon
     }
 
     /// Determines shared points for both that and source circles.
@@ -43,12 +50,12 @@ public struct FlatCircle: Equatable {
     }
 
     /// Places that circle to the right of the source circle.
-    public mutating func put(nextTo peer: FlatCircle, padding: Distance) {
+    public mutating func put(nextTo peer: FlatCircle, padding: Distance = .zero) {
         center = Point(x: peer.center.x + peer.radius + radius + padding, y: peer.center.y)
     }
 
     /// Makes that circle tangent to source circles.
-    public mutating func put(between a: FlatCircle, _ b: FlatCircle, padding: Distance) {
+    public mutating func put(between a: FlatCircle, _ b: FlatCircle, padding: Distance = .zero) {
         let a = FlatCircle(radius: a.radius + radius + padding, center: a.center)
         let b = FlatCircle(radius: b.radius + radius + padding, center: b.center)
         center = a.collide(with: b).first!

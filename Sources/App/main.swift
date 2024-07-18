@@ -56,7 +56,6 @@ func drawDiagram(drawingHandler: @escaping (NSRect) -> Bool) {
     }
 }
 
-
 var a = FlatCircle(radius: 20, center: .zero)
 var b = FlatCircle(radius: 20, center: .zero)
 var c = FlatCircle(radius: 20, center: .zero)
@@ -68,10 +67,10 @@ var h = FlatCircle(radius: 35, center: .zero)
 var i = FlatCircle(radius: 20, center: .zero)
 var j = FlatCircle(radius: 40, center: .zero)
 
-
-func orderCircles(_ circles: [FlatCircle]) -> [FlatCircle] {
-    guard circles.count > 1 else { return circles }
-
+func orderCircles(_ circles: [FlatCircle], padding: Distance) -> [FlatCircle] {
+    guard circles.count > 1 else {
+        return circles
+    }
     var sortedCircles = circles.sorted { $0.radius < $1.radius }
     var orderedCircles: [FlatCircle] = []
     orderedCircles.append(sortedCircles[0])
@@ -83,7 +82,7 @@ func orderCircles(_ circles: [FlatCircle]) -> [FlatCircle] {
         var currentCircle = sortedCircles[i]
         repeat {
             currentCircle.put(between: orderedCircles[pivot], orderedCircles[head], padding: 5)
-            if let collisionCircle = currentCircle.firstCollisionIndex(in:   orderedCircles, between: pivot + 1, head) {
+            if let collisionCircle = currentCircle.firstCollisionIndex(in: orderedCircles, between: pivot + 1, head - 1) {
                 pivot = collisionCircle
             } else {
                 head += 1
@@ -95,12 +94,10 @@ func orderCircles(_ circles: [FlatCircle]) -> [FlatCircle] {
     return orderedCircles
 }
 
-
-
 drawDiagram { rect in
     NSColor.black.set()
     rect.fill()
     NSColor.yellow.set()
-    orderCircles([a, b, c, d, e, f, g, h, i, j]).forEach { $0.bezierPath.fill() }
+    orderCircles([a, b, c, d, e, f, g, h, i, j], padding: 5).forEach { $0.bezierPath.fill() }
     return true
 }
