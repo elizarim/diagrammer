@@ -36,3 +36,27 @@ enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
         }
     }
 }
+
+public extension Array where Element == FlatCircle {
+    mutating func orderSpatially(padding: Distance) {
+        guard count > 1 else {
+            return
+        }
+        sort { $0.radius < $1.radius }
+        self[1].put(nextTo: self[0], padding: padding)
+        var pivot = 0, current = 2
+        while current < count {
+            let head = current - 1
+            assert(pivot != head)
+            var circle = self[current]
+            circle.put(between: self[head], self[pivot], padding: padding)
+            if let collision =
+                circle.firstCollisionIndex(in: self, between: pivot + 1, head - 1, padding: padding) {
+                pivot = collision
+                continue
+            }
+            self[current] = circle
+            current += 1
+        }
+    }
+}
