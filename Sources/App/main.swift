@@ -71,9 +71,8 @@ drawDiagram { rect in
     NSColor.black.set()
     rect.fill()
     NSColor.yellow.set()
-    //    orderCircles([a, b, c, d, e, f, g, h, i, j], padding: 8).forEach { $0.bezierPath.fill() }
     var circles = [a, b, c, d, e, f, g, h, i, j]
     circles.orderSpatially(padding: 8)
-    circles.forEach { $0.bezierPath.fill() }
+    circles.forEach { $0.bezierPath.stroke() }
     return true
 }
