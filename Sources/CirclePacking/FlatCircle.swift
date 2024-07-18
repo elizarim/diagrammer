@@ -17,7 +17,7 @@ public struct FlatCircle: Equatable {
       between lower: Int, _ upper: Int
     ) -> Int? {
         for i in lower..<upper {
-            if self.collides(with: circles[i]) {
+            if self.collides(with: circles[i], padding: 5) {
                 return i
             }
         }
@@ -25,8 +25,8 @@ public struct FlatCircle: Equatable {
     }
 
     /// Determines whether or not source circle has collision points with that circle.
-    func collides(with circle: FlatCircle) -> Bool {
-      center.distance(to: circle.center) - radius - circle.radius < .epsilon
+    func collides(with circle: FlatCircle, padding: Distance) -> Bool {
+      center.distance(to: circle.center) - radius - circle.radius < padding - .epsilon
     }
 
     /// Determines shared points for both that and source circles.
@@ -43,14 +43,14 @@ public struct FlatCircle: Equatable {
     }
 
     /// Places that circle to the right of the source circle.
-    public mutating func put(nextTo peer: FlatCircle) {
-        center = Point(x: peer.center.x + peer.radius + radius, y: peer.center.y)
+    public mutating func put(nextTo peer: FlatCircle, padding: Distance) {
+        center = Point(x: peer.center.x + peer.radius + radius + padding, y: peer.center.y)
     }
 
     /// Makes that circle tangent to source circles.
-    public mutating func put(between a: FlatCircle, _ b: FlatCircle) {
-        let a = FlatCircle(radius: a.radius + radius, center: a.center)
-        let b = FlatCircle(radius: b.radius + radius, center: b.center)
+    public mutating func put(between a: FlatCircle, _ b: FlatCircle, padding: Distance) {
+        let a = FlatCircle(radius: a.radius + radius + padding, center: a.center)
+        let b = FlatCircle(radius: b.radius + radius + padding, center: b.center)
         center = a.collide(with: b).first!
     }
 }

@@ -12,8 +12,8 @@ class CircleTests: XCTestCase {
     func testPutNearMethod() {
         let a = FlatCircle(radius: 20, center: Point(x: 1, y: 2))
         var b = FlatCircle(radius: 10, center: .zero)
-        b.put(nextTo: a)
-        XCTAssertEqual(b, FlatCircle(radius: 10, center: Point(x: 31, y: 2)))
+        b.put(nextTo: a, padding: 5 )
+        XCTAssertEqual(b, FlatCircle(radius: 10, center: Point(x: 36, y: 2)))
     }
 
     func testCollisionPoints() {
@@ -27,9 +27,9 @@ class CircleTests: XCTestCase {
     func testPutBetweenMethod() {
         let a = FlatCircle(radius: 20, center: Point(x: -25, y: 0))
         var b = FlatCircle(radius: 20, center: .zero)
-        b.put(nextTo: a)
+        b.put(nextTo: a, padding: 5)
         var c = FlatCircle(radius: 20, center: .zero)
-        c.put(between: b, a)
-        XCTAssertEqual(c.center.rounded(floatingPoints: 0), Point(x: -5, y: -35))
+        c.put(between: b, a, padding: 5)
+        XCTAssertEqual(c.center.rounded(floatingPoints: 0), Point(x: -3, y: -39))
     }
 }
