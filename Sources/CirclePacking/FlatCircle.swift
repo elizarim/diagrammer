@@ -2,17 +2,14 @@ import Foundation
 
 public typealias CircleRadius = Distance
 
-public struct FlatCircle: Equatable {
-    public var radius: CircleRadius
-    public var center: Point
+public protocol Circle {
+    var radius: CircleRadius { get }
+    var center: Point { get set }
+}
 
-    public init(radius: CircleRadius, center: Point) {
-        self.radius = radius
-        self.center = center
-    }
-
+public extension Circle {
     /// Returns the minimal index of the circle in the source range who collides with that circle.
-    public func firstCollisionIndex(
+    func firstCollisionIndex(
         in circles: [FlatCircle],
         between lower: Int, _ upper: Int,
         padding: Distance = .zero
@@ -35,7 +32,9 @@ public struct FlatCircle: Equatable {
     func collides(with circle: FlatCircle, padding: Distance = .zero) -> Bool {
         center.distance(to: circle.center) - radius - circle.radius < padding - .epsilon
     }
+}
 
+public extension Circle {
     /// Determines shared points for both that and source circles.
     func collide(with circle: FlatCircle) -> Points {
         let r1 = radius
@@ -48,16 +47,28 @@ public struct FlatCircle: Equatable {
         )
         return line.collideCircle(with: radius) + center // Shift back origin of coordinates
     }
+}
 
+public extension Circle {
     /// Places that circle to the right of the source circle.
-    public mutating func put(nextTo peer: FlatCircle, padding: Distance = .zero) {
+    mutating func put(nextTo peer: FlatCircle, padding: Distance = .zero) {
         center = Point(x: peer.center.x + peer.radius + radius + padding, y: peer.center.y)
     }
 
     /// Makes that circle tangent to source circles.
-    public mutating func put(between a: FlatCircle, _ b: FlatCircle, padding: Distance = .zero) {
+    mutating func put(between a: FlatCircle, _ b: FlatCircle, padding: Distance = .zero) {
         let a = FlatCircle(radius: a.radius + radius + padding, center: a.center)
         let b = FlatCircle(radius: b.radius + radius + padding, center: b.center)
         center = b.collide(with: a).first!
+    }
+}
+
+public struct FlatCircle: Circle, Equatable {
+    public var radius: CircleRadius
+    public var center: Point
+
+    public init(radius: CircleRadius, center: Point) {
+        self.radius = radius
+        self.center = center
     }
 }
