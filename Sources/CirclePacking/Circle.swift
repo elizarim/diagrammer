@@ -56,4 +56,42 @@ public extension Circle {
         let b = FlatCircle(radius: b.radius + radius + padding, center: b.center)
         center = b.collide(with: a).first!
     }
+
+    /// Finds the circle whose far side is the most distant.
+    func findMostDistantCircle(in circles: [FlatCircle]) -> (FlatCircle, Distance) {
+        precondition(!circles.isEmpty)
+        var mostDistantCircle: FlatCircle? = nil
+        var maxDistance = -Distance.infinity
+        for circle in circles {
+            let distance1 = distanceToFarSide(of: circle)
+            if distance1 > maxDistance {
+                maxDistance = distance1
+                mostDistantCircle = circle
+            }
+        }
+        return (mostDistantCircle!, maxDistance)
+    }
+
+    /// Returns the distance between far sides of both that and source circles.
+    func maxDistance(to circle: some Circle) -> Distance {
+        distanceToFarSide(of: circle) + radius*2
+    }
+
+    /// Returns the minimal distance to the far side of the source circle.
+    func distanceToFarSide(of circle: some Circle) -> Distance {
+        center.distance(to: circle.center) + circle.radius - radius
+    }
+
+    /// Returns the points where the line constructed using both that and source circles's centers collides with them.
+    func sharedDiameterCollisionPoints(_ other: FlatCircle) -> [Point] {
+        let bPoints = other.diameterCollisionPoints(passing: center)
+        let aPoints = diameterCollisionPoints(passing: other.center)
+        return [bPoints.first!, bPoints.second!, aPoints.first!, aPoints.second!]
+    }
+
+    /// Returns the points where the line constructed using both circle's center and external point collides with that circle.
+    func diameterCollisionPoints(passing externalPoint: Point) -> Points {
+        let p = externalPoint - center
+        return Line(a: p.y, b: -p.x, c: 0).collideCircle(with: radius) + center
+    }
 }
