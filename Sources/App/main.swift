@@ -44,6 +44,15 @@ extension FlatCircle {
     }
 }
 
+extension OuterCircle {
+    var bezierPath: NSBezierPath {
+        NSBezierPath(ovalIn: NSRect(
+            origin: NSPoint(x: center.x - radius, y: center.y - radius),
+            size: NSSize(width: radius * 2, height: radius * 2)
+        ))
+    }
+}
+
 func drawDiagram(drawingHandler: @escaping (NSRect) -> Bool) {
     let diagramURL = composeDiagramURL()
     let diagramSize = NSSize(width: 300, height: 300)
@@ -56,7 +65,7 @@ func drawDiagram(drawingHandler: @escaping (NSRect) -> Bool) {
     }
 }
 
-var a = FlatCircle(radius: 20, center: .zero)
+var a = FlatCircle(radius: 15, center: .zero)
 var b = FlatCircle(radius: 20, center: .zero)
 var c = FlatCircle(radius: 20, center: .zero)
 var d = FlatCircle(radius: 25, center: .zero)
@@ -66,6 +75,7 @@ var g = FlatCircle(radius: 30, center: .zero)
 var h = FlatCircle(radius: 35, center: .zero)
 var i = FlatCircle(radius: 20, center: .zero)
 var j = FlatCircle(radius: 40, center: .zero)
+var k = OuterCircle(for: e, a)
 
 drawDiagram { rect in
     NSColor.black.set()
@@ -74,5 +84,7 @@ drawDiagram { rect in
     var circles = [a, b, c, d, e, f, g, h, i, j]
     circles.orderSpatially(padding: 8)
     circles.forEach { $0.bezierPath.stroke() }
+    let finalOuterCircle = k.union(circles)
+    finalOuterCircle.bezierPath.stroke()
     return true
 }
