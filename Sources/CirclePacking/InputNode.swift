@@ -4,7 +4,7 @@ extension FloatType {
   static let epsilon = FloatType(Float.ulpOfOne)
 }
 
-enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
+public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
     case branch(children: [InputNode])
     case leaf(radius: FloatType)
 
@@ -17,15 +17,15 @@ enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
         }
     }
 
-    init(floatLiteral value: FloatType) {
+    public init(floatLiteral value: FloatType) {
         self = .leaf(radius: value)
     }
 
-    init(arrayLiteral elements: InputNode...) {
+    public init(arrayLiteral elements: InputNode...) {
         self = .branch(children: elements)
     }
 
-    func pack() -> CircleNode {
+    public func pack() -> CircleNode {
         fatalError()
 //        switch self {
 //        case let .leaf(radius):

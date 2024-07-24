@@ -1,9 +1,9 @@
-struct CircleNode {
-    enum State {
+public struct CircleNode {
+    public enum State {
         case leaf
         case branch(children: [CircleNode])
     }
 
-    var state: State
-    var geometry: FlatCircle
+    public var state: State
+    public var geometry: FlatCircle
 }
