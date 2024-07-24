@@ -75,7 +75,6 @@ var g = FlatCircle(radius: 30, center: .zero)
 var h = FlatCircle(radius: 35, center: .zero)
 var i = FlatCircle(radius: 20, center: .zero)
 var j = FlatCircle(radius: 40, center: .zero)
-var k = OuterCircle(for: e, a)
 
 drawDiagram { rect in
     NSColor.black.set()
@@ -83,8 +82,9 @@ drawDiagram { rect in
     NSColor.yellow.set()
     var circles = [a, b, c, d, e, f, g, h, i, j]
     circles.orderSpatially(padding: 8)
+    var outerCircle = OuterCircle(for: circles[3], circles[9])
     circles.forEach { $0.bezierPath.stroke() }
-    let finalOuterCircle = k.union(circles)
+    let finalOuterCircle = outerCircle.union(circles)
     finalOuterCircle.bezierPath.stroke()
     return true
 }
