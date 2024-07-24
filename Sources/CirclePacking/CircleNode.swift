@@ -5,5 +5,5 @@ struct CircleNode {
     }
 
     var state: State
-    var radius: FloatType
+    var geometry: FlatCircle
 }

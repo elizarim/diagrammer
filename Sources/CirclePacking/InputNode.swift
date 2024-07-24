@@ -26,14 +26,15 @@ enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
     }
 
     func pack() -> CircleNode {
-        switch self {
-        case let .leaf(radius):
-            return CircleNode(state: .leaf, radius: radius)
-        case let .branch(children):
-            let packedChildren = children.map { $0.pack() }
-            let packedRadius = packedChildren.reduce(0) { $0 + $1.radius }
-            return CircleNode(state: .branch(children: packedChildren), radius: packedRadius)
-        }
+        fatalError()
+//        switch self {
+//        case let .leaf(radius):
+//            return CircleNode(state: .leaf, radius: radius)
+//        case let .branch(children):
+//            let packedChildren = children.map { $0.pack() }
+//            let packedRadius = packedChildren.reduce(0) { $0 + $1.radius }
+//            return CircleNode(state: .branch(children: packedChildren), radius: packedRadius)
+//        }
     }
 }
 
