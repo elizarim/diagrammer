@@ -4,11 +4,11 @@ import Foundation
 public struct OuterCircle: Circle {
     public var radius: CircleRadius
     public var center: Point
-    let headPin: FlatCircle
-    let tailPin: FlatCircle
+    let headPin: Circle
+    let tailPin: Circle
 
     /// Returns the smallest circle that contains all source circles.
-    public func union(_ circles: [FlatCircle]) -> OuterCircle {
+    public func union(_ circles: [Circle]) -> OuterCircle {
         var outerCircle = self
         while let circle = outerCircle.findExternalCircle(circles) {
             outerCircle = outerCircle.union(circle)
@@ -17,13 +17,13 @@ public struct OuterCircle: Circle {
     }
 
     /// Finds the circle which lies outside of that circle.
-    private func findExternalCircle(_ circles: [FlatCircle]) -> FlatCircle? {
+    private func findExternalCircle(_ circles: [Circle]) -> Circle? {
         let (circle, distance) = findMostDistantCircle(in: circles)
         return distance > .epsilon ? circle : nil
     }
 
     /// Returns the smallest circle that contains that and source circles.
-    private func union(_ c4: FlatCircle) -> OuterCircle {
+    private func union(_ c4: Circle) -> OuterCircle {
         let c1 = self, c2 = headPin, c3 = tailPin
         let cX = c2.maxDistance(to: c4) >= c3.maxDistance(to: c4) ? c2 : c3
         let o1 = c1.center, o4 = c4.center, oX = cX.center
@@ -44,7 +44,7 @@ public struct OuterCircle: Circle {
 
 public extension OuterCircle {
     /// Creates the outer circle with minimal radius which is tangent to both source circles.
-    init(for a: FlatCircle, _ b: FlatCircle) {
+    init(for a: Circle, _ b: Circle) {
         self.init(
             radius: a.maxDistance(to: b) / 2,
             center: Rect.union(a.sharedDiameterCollisionPoints(b)).center,

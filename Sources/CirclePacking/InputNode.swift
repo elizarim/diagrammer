@@ -26,15 +26,43 @@ public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
     }
 
     public func pack() -> CircleNode {
-        fatalError()
-//        switch self {
-//        case let .leaf(radius):
-//            return CircleNode(state: .leaf, radius: radius)
-//        case let .branch(children):
-//            let packedChildren = children.map { $0.pack() }
-//            let packedRadius = packedChildren.reduce(0) { $0 + $1.radius }
-//            return CircleNode(state: .branch(children: packedChildren), radius: packedRadius)
-//        }
+
+        switch self {
+        case let .leaf(radius):
+            let flatCircle = FlatCircle(radius: radius, center: Point(x: 200, y: 200))
+            return CircleNode(state: .leaf, geometry: flatCircle)
+
+        case let .branch(children):
+            var packedChildren = children.map { $0.pack() }
+            var childCircles = packedChildren.map { $0.geometry }
+            childCircles.orderSpatially(padding: 4)
+            var outerCircle = OuterCircle(for: childCircles[0], childCircles[1])
+            outerCircle = outerCircle.union(childCircles)
+            for index in packedChildren.indices {
+                updateChildrenCenters(node: &packedChildren[index], newCenter: childCircles[index].center)
+            }
+            for index in packedChildren.indices {
+                packedChildren[index].geometry = childCircles[index]
+            }
+            return CircleNode(state: .branch(children: packedChildren), geometry: FlatCircle(radius: outerCircle.union(childCircles).radius, center: outerCircle.union(childCircles).center))
+        }
+    }
+
+    func updateChildrenCenters(node: inout CircleNode, newCenter: Point) {
+        switch node.state {
+        case .leaf:
+            node.geometry.center = newCenter
+        case .branch(var children):
+            let offset = newCenter - node.geometry.center
+            node.geometry.center = newCenter
+            for index in children.indices {
+                var child = children[index]
+                let newChildCenter = child.geometry.center + offset
+                updateChildrenCenters(node: &child, newCenter: newChildCenter)
+                children[index] = child
+            }
+            node.state = .branch(children: children)
+        }
     }
 }
 

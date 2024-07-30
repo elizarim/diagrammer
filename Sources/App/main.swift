@@ -55,7 +55,7 @@ extension OuterCircle {
 
 func drawDiagram(drawingHandler: @escaping (NSRect) -> Bool) {
     let diagramURL = composeDiagramURL()
-    let diagramSize = NSSize(width: 300, height: 300)
+    let diagramSize = NSSize(width: 800, height: 800)
     let diagram = NSImage(size: diagramSize, flipped: false, drawingHandler: drawingHandler)
     do {
         try saveImage(diagram, at: diagramURL)
@@ -65,54 +65,56 @@ func drawDiagram(drawingHandler: @escaping (NSRect) -> Bool) {
     }
 }
 
-var a = FlatCircle(radius: 15, center: .zero)
-var b = FlatCircle(radius: 20, center: .zero)
-var c = FlatCircle(radius: 20, center: .zero)
-var d = FlatCircle(radius: 25, center: .zero)
-var e = FlatCircle(radius: 10, center: Point(x: 125, y: 125))
-var f = FlatCircle(radius: 20, center: .zero)
-var g = FlatCircle(radius: 30, center: .zero)
-var h = FlatCircle(radius: 35, center: .zero)
-var i = FlatCircle(radius: 20, center: .zero)
-var j = FlatCircle(radius: 40, center: .zero)
+//var a = FlatCircle(radius: 15, center: .zero)
+//var b = FlatCircle(radius: 20, center: .zero)
+//var c = FlatCircle(radius: 20, center: .zero)
+//var d = FlatCircle(radius: 25, center: .zero)
+//var e = FlatCircle(radius: 10, center: Point(x: 125, y: 125))
+//var f = FlatCircle(radius: 20, center: .zero)
+//var g = FlatCircle(radius: 30, center: .zero)
+//var h = FlatCircle(radius: 35, center: .zero)
+//var i = FlatCircle(radius: 20, center: .zero)
+//var j = FlatCircle(radius: 40, center: .zero)
 
 let tree: InputNode = [
+
     [
-        [18.0, 8.0, 8.0, 8.0, 8.0, 8.0],
-        [38.0, 28.0, 28.0, 18.0],
-        [28.0, 18.0]
+        [8.0, 9.0],
+        [10.0, 12.0],
     ],
     [
-        [18.0, 10.0, 10.0],
-        [18.0, 10.0, 10.0],
-        [18.0, 18.0, 8.0, 8.0, [8.0, 8.0], 8.0, 8.0]
+        [1.0, 2.0],
+        [1.0, 2.0],
     ],
     [
-        [18.0, 18.0, 10.0, 8.0, 8.0, 8.0, 5.0],
-        [18.0, 18.0, 10.0, 10.0, 8.0, 8.0, 8.0],
-        [18.0, 28.0, 8.0, 8.0, 8.0, 8.0, 8.0],
-        [13.0, 12.0, 11.0, 10.0],
-    ],
-    [
-        [18.0, 18.0, 10.0, 8.0, 8.0, 8.0, 5.0],
-        [18.0, 28.0, 8.0, 8.0, 8.0, 8.0, 8.0],
-        [13.0, 12.0, 11.0, 10.0],
-    ],
-    [18.0, 18.0, 8.0, 8.0, 8.0],
-    [18.0, 18.0, 8.0, 8.0, 8.0, 8.0, 8.0],
-    [10.0, 9.0, 8.0, 7.0],
+        [2.0, 4.0],
+        [2.0, 4.0],
+    ]
 ]
 var circle = tree.pack()
+
+func drawNode(_ node: CircleNode) {
+    switch node.state {
+    case .leaf:
+        node.geometry.bezierPath.stroke()
+    case let .branch(children):
+        node.geometry.bezierPath.stroke()
+        for child in children {
+            drawNode(child)
+        }
+    }
+}
 
 drawDiagram { rect in
     NSColor.black.set()
     rect.fill()
     NSColor.yellow.set()
-    var circles = [a, b, c, d, e, f, g, h, i, j]
-    circles.orderSpatially(padding: 8)
-    var outerCircle = OuterCircle(for: circles[3], circles[9])
-    circles.forEach { $0.bezierPath.stroke() }
-    let finalOuterCircle = outerCircle.union(circles)
-    finalOuterCircle.bezierPath.stroke()
+//    var circles = [a, b, c, d, e, f, g, h, i, j]
+//    circles.orderSpatially(padding: 8)
+//    var outerCircle = OuterCircle(for: circles[3], circles[9])
+//    circles.forEach { $0.bezierPath.stroke() }
+//    let finalOuterCircle = outerCircle.union(circles)
+//    finalOuterCircle.bezierPath.stroke()
+    drawNode(circle)
     return true
 }
