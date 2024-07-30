@@ -34,31 +34,30 @@ public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
 
         case let .branch(children):
             var packedChildren = children.map { $0.pack() }
-            var childCircles = packedChildren.map { $0.geometry }
-            childCircles.orderSpatially(padding: 4)
-            var outerCircle = OuterCircle(for: childCircles[0], childCircles[1])
-            outerCircle = outerCircle.union(childCircles)
+            packedChildren.orderSpatially(padding: 4)
+            var outerCircle = OuterCircle(for: packedChildren[0], packedChildren[1])
+            outerCircle = outerCircle.union(packedChildren)
             for index in packedChildren.indices {
-                updateChildrenCenters(node: &packedChildren[index], newCenter: childCircles[index].center)
+                updateChildrenCenters(node: &packedChildren[index], offset: outerCircle.center)
             }
-            for index in packedChildren.indices {
-                packedChildren[index].geometry = childCircles[index]
-            }
-            return CircleNode(state: .branch(children: packedChildren), geometry: FlatCircle(radius: outerCircle.union(childCircles).radius, center: outerCircle.union(childCircles).center))
+            return CircleNode(
+                state: .branch(children: packedChildren),
+                geometry: FlatCircle(
+                    radius: outerCircle.radius,
+                    center: .zero
+                )
+            )
         }
     }
 
-    func updateChildrenCenters(node: inout CircleNode, newCenter: Point) {
+    func updateChildrenCenters(node: inout CircleNode, offset: Point) {
         switch node.state {
         case .leaf:
-            node.geometry.center = newCenter
+            break
         case .branch(var children):
-            let offset = newCenter - node.geometry.center
-            node.geometry.center = newCenter
             for index in children.indices {
                 var child = children[index]
-                let newChildCenter = child.geometry.center + offset
-                updateChildrenCenters(node: &child, newCenter: newChildCenter)
+                child.center -= offset
                 children[index] = child
             }
             node.state = .branch(children: children)
@@ -66,7 +65,16 @@ public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
     }
 }
 
-public extension Array where Element == FlatCircle {
+extension CircleNode: Circle {
+    public var radius: CircleRadius { geometry.radius }
+
+    public var center: Point {
+        get { geometry.center }
+        set { geometry.center = newValue }
+    }
+}
+
+public extension Array where Element: Circle {
     mutating func orderSpatially(padding: Distance) {
         guard count > 1 else {
             return

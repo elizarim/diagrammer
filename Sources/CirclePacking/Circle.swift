@@ -10,7 +10,7 @@ public protocol Circle {
 public extension Circle {
     /// Returns the minimal index of the circle in the source range who collides with that circle.
     func firstCollisionIndex(
-        in circles: [FlatCircle],
+        in circles: [Circle],
         between lower: Int, _ upper: Int,
         padding: Distance = .zero
     ) -> Int? {

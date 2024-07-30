@@ -18,7 +18,7 @@ func saveImage(_ image: NSImage, at fileURL: URL) throws {
     guard
         let tiffData = image.tiffRepresentation,
         let bitmap = NSBitmapImageRep(data: tiffData),
-        let pngData = bitmap.representation(using: .png, properties: [:])
+        let pngData = bitmap.representation(using: .png, properties: [.compressionFactor: 1.0])
     else {
         throw AppError.imageSerialization
     }
