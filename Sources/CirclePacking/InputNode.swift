@@ -29,7 +29,7 @@ public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
 
         switch self {
         case let .leaf(radius):
-            let flatCircle = FlatCircle(radius: radius, center: Point(x: 200, y: 200))
+            let flatCircle = FlatCircle(radius: radius, center : .zero)
             return CircleNode(state: .leaf, geometry: flatCircle)
 
         case let .branch(children):

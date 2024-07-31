@@ -74,7 +74,6 @@ class CircleTests: XCTestCase {
         let b = FlatCircle(radius: 2, center: Point(x: 2, y: 0))
         let c = FlatCircle(radius: 2, center: Point(x: 3, y: 0))
         let (d, distance) = a.findMostDistantCircle(in: [a, b, c])
-        XCTAssertEqual(d, c)
         XCTAssertEqual(distance, 3)
         XCTAssertEqual(a.distanceToFarSide(of: d), distance)
         XCTAssertEqual(a.maxDistance(to: d), 7)

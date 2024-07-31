@@ -86,21 +86,20 @@ let tree: InputNode = [
         [1.0, 2.0],
         [1.0, 2.0],
     ],
-    [
-        [2.0, 4.0],
-        [2.0, 4.0],
-    ]
+
 ]
 var circle = tree.pack()
 
-func drawNode(_ node: CircleNode) {
+func drawNode(_ node: CircleNode, parentCenter: Point = .zero) {
+    let currentCenter = Point(x: parentCenter.x + node.center.x, y: parentCenter.y + node.center.y)
+    let currentCircle = FlatCircle(radius: node.radius, center: currentCenter)
+    currentCircle.bezierPath.stroke()
     switch node.state {
     case .leaf:
-        node.geometry.bezierPath.stroke()
+        break
     case let .branch(children):
-        node.geometry.bezierPath.stroke()
         for child in children {
-            drawNode(child)
+            drawNode(child, parentCenter: currentCenter)
         }
     }
 }
