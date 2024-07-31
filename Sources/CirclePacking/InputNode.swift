@@ -26,19 +26,17 @@ public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
     }
 
     public func pack() -> CircleNode {
-
         switch self {
         case let .leaf(radius):
             let flatCircle = FlatCircle(radius: radius, center : .zero)
             return CircleNode(state: .leaf, geometry: flatCircle)
-
         case let .branch(children):
             var packedChildren = children.map { $0.pack() }
-            packedChildren.orderSpatially(padding: 4)
+            packedChildren.orderSpatially(padding: 0)
             var outerCircle = OuterCircle(for: packedChildren[0], packedChildren[1])
             outerCircle = outerCircle.union(packedChildren)
             for index in packedChildren.indices {
-                updateChildrenCenters(node: &packedChildren[index], offset: outerCircle.center)
+                packedChildren[index].center -= outerCircle.center
             }
             return CircleNode(
                 state: .branch(children: packedChildren),
@@ -47,20 +45,6 @@ public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
                     center: .zero
                 )
             )
-        }
-    }
-
-    func updateChildrenCenters(node: inout CircleNode, offset: Point) {
-        switch node.state {
-        case .leaf:
-            break
-        case .branch(var children):
-            for index in children.indices {
-                var child = children[index]
-                child.center -= offset
-                children[index] = child
-            }
-            node.state = .branch(children: children)
         }
     }
 }

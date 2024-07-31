@@ -77,21 +77,35 @@ func drawDiagram(drawingHandler: @escaping (NSRect) -> Bool) {
 //var j = FlatCircle(radius: 40, center: .zero)
 
 let tree: InputNode = [
-
     [
-        [8.0, 9.0],
-        [10.0, 12.0],
+        [18.0, 8.0, 8.0, 8.0, 8.0, 8.0],
+        [38.0, 28.0, 28.0, 18.0],
+        [28.0, 18.0]
     ],
     [
-        [1.0, 2.0],
-        [1.0, 2.0],
+        [18.0, 10.0, 10.0],
+        [18.0, 10.0, 10.0],
+        [18.0, 18.0, 8.0, 8.0, [8.0, 8.0], 8.0, 8.0]
     ],
-
+    [
+        [18.0, 18.0, 10.0, 8.0, 8.0, 8.0, 5.0],
+        [18.0, 18.0, 10.0, 10.0, 8.0, 8.0, 8.0],
+        [18.0, 28.0, 8.0, 8.0, 8.0, 8.0, 8.0],
+        [13.0, 12.0, 11.0, 10.0],
+    ],
+    [
+        [18.0, 18.0, 10.0, 8.0, 8.0, 8.0, 5.0],
+        [18.0, 28.0, 8.0, 8.0, 8.0, 8.0, 8.0],
+        [13.0, 12.0, 11.0, 10.0],
+    ],
+    [18.0, 18.0, 8.0, 8.0, 8.0],
+    [18.0, 18.0, 8.0, 8.0, 8.0, 8.0, 8.0],
+    [10.0, 9.0, 8.0, 7.0],
 ]
 var circle = tree.pack()
 
 func drawNode(_ node: CircleNode, parentCenter: Point = .zero) {
-    let currentCenter = Point(x: parentCenter.x + node.center.x, y: parentCenter.y + node.center.y)
+    let currentCenter = node.center + parentCenter
     let currentCircle = FlatCircle(radius: node.radius, center: currentCenter)
     currentCircle.bezierPath.stroke()
     switch node.state {
@@ -114,6 +128,6 @@ drawDiagram { rect in
 //    circles.forEach { $0.bezierPath.stroke() }
 //    let finalOuterCircle = outerCircle.union(circles)
 //    finalOuterCircle.bezierPath.stroke()
-    drawNode(circle)
+    drawNode(circle, parentCenter: Point(x: 400, y: 400))
     return true
 }
