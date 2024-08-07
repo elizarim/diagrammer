@@ -32,9 +32,21 @@ public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
             return CircleNode(state: .leaf, geometry: flatCircle)
         case let .branch(children):
             var packedChildren = children.map { $0.pack() }
-            packedChildren.orderSpatially(padding: 0)
-            var outerCircle = OuterCircle(for: packedChildren[0], packedChildren[1])
-            outerCircle = outerCircle.union(packedChildren)
+            packedChildren.orderSpatially(padding: 8)
+            var outerCircle: OuterCircle
+
+            switch packedChildren.count {
+            case 0:
+                outerCircle = OuterCircle(for: nil, nil, padding: 8)
+            case 1:
+                outerCircle = OuterCircle(for: packedChildren[0], nil, padding: 8)
+            case 2:
+                outerCircle = OuterCircle(for: packedChildren[0], packedChildren[1], padding: 8)
+            default:
+                outerCircle = OuterCircle(for: packedChildren[0], packedChildren[1], padding: 8)
+                outerCircle = outerCircle.union(packedChildren, padding: 8)
+            }
+            
             for index in packedChildren.indices {
                 packedChildren[index].center -= outerCircle.center
             }
@@ -59,7 +71,7 @@ extension CircleNode: Circle {
 }
 
 public extension Array where Element: Circle {
-    mutating func orderSpatially(padding: Distance) {
+    mutating func orderSpatially(padding: Distance = .zero) {
         guard count > 1 else {
             return
         }
