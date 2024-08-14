@@ -5,12 +5,12 @@ extension FloatType {
 }
 
 public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
-    case branch(children: [InputNode])
-    case leaf(radius: FloatType)
+    case branch(name: String? = nil, children: [InputNode])
+    case leaf(name: String? = nil, radius: FloatType)
 
-    var count: Int {
+    public var count: Int {
         switch self {
-        case let .branch(children):
+        case let .branch(_, children):
             return children.reduce(1) { $0 + $1.count }
         case .leaf:
             return 1
@@ -27,36 +27,33 @@ public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
 
     public func pack() -> CircleNode {
         switch self {
-        case let .leaf(radius):
+        case let .leaf(name, radius):
             let flatCircle = FlatCircle(radius: radius, center : .zero)
-            return CircleNode(state: .leaf, geometry: flatCircle)
-        case let .branch(children):
+            return CircleNode(name: name, state: .leaf, geometry: flatCircle)
+        case let .branch(name, children):
             var packedChildren = children.map { $0.pack() }
             packedChildren.orderSpatially(padding: 8)
-            var outerCircle: OuterCircle
-
-            switch packedChildren.count {
-            case 0:
-                outerCircle = OuterCircle(for: nil, nil, padding: 8)
-            case 1:
-                outerCircle = OuterCircle(for: packedChildren[0], nil, padding: 8)
-            case 2:
-                outerCircle = OuterCircle(for: packedChildren[0], packedChildren[1], padding: 8)
-            default:
-                outerCircle = OuterCircle(for: packedChildren[0], packedChildren[1], padding: 8)
-                outerCircle = outerCircle.union(packedChildren, padding: 8)
-            }
-            
+            let outerCircle = group(packedChildren)
             for index in packedChildren.indices {
                 packedChildren[index].center -= outerCircle.center
             }
             return CircleNode(
+                name: name,
                 state: .branch(children: packedChildren),
                 geometry: FlatCircle(
                     radius: outerCircle.radius,
                     center: .zero
                 )
             )
+        }
+    }
+
+    private func group(_ circles: [CircleNode]) -> OuterCircle {
+        switch circles.count {
+        case 0:  return OuterCircle(for: nil, nil, padding: 8)
+        case 1:  return OuterCircle(for: circles[0], nil, padding: 8)
+        case 2:  return OuterCircle(for: circles[0], circles[1], padding: 8)
+        default: return OuterCircle(for: circles[0], circles[1], padding: 8).union(circles, padding: 8)
         }
     }
 }
@@ -90,6 +87,26 @@ public extension Array where Element: Circle {
             }
             self[current] = circle
             current += 1
+        }
+    }
+}
+
+public extension InputNode {
+    func adjustRadiuses(width: FloatType, height: FloatType) -> InputNode {
+        let newRadius = min(width, height) / 2
+        let currentCircle = self.pack()
+        let outerCircleRadius = currentCircle.radius
+        let scaleFactor = newRadius / outerCircleRadius
+        return self.adjustRadiuses1(scaleFactor: scaleFactor)
+    }
+
+    private func adjustRadiuses1(scaleFactor: FloatType) -> InputNode {
+        switch self {
+        case let .leaf(name, radius):
+            return .leaf(name: name, radius: radius * scaleFactor)
+        case let .branch(name, children):
+            let adjustedChildren = children.map { $0.adjustRadiuses1(scaleFactor: scaleFactor) }
+            return .branch(name: name, children: adjustedChildren)
         }
     }
 }

@@ -4,6 +4,11 @@ public struct Size: Equatable {
     var width: Distance
     var height: Distance
 
+    public init(width: Distance, height: Distance) {
+        self.width = width
+        self.height = height
+    }
+
     static var zero: Size { Size(width: .zero, height: .zero) }
 }
 
@@ -13,8 +18,13 @@ public struct Rect: Equatable {
 
     static var zero: Rect { Rect(origin: .zero, size: .zero) }
 
-    var center: Point {
+    public var center: Point {
         Point(x: origin.x + size.width / 2, y: origin.y + size.height / 2)
+    }
+
+    public init(origin: Point, size: Size) {
+        self.origin = origin
+        self.size = size
     }
 
     static func union(_ points: [Point]) -> Rect {
