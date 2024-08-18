@@ -1,12 +1,26 @@
+import AppKit
+
 public typealias FloatType = Double
 
 extension FloatType {
   static let epsilon = FloatType(Float.ulpOfOne)
 }
 
+public struct NodeAttributes {
+    public var name: String?
+    public var fill: NSColor?
+    public var stroke: NSColor?
+
+    public init(name: String? = nil, fill: NSColor? = nil, stroke: NSColor? = nil) {
+        self.name = name
+        self.fill = fill ?? .black
+        self.stroke = stroke ?? .yellow
+    }
+}
+
 public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
-    case branch(name: String? = nil, children: [InputNode])
-    case leaf(name: String? = nil, radius: FloatType)
+    case branch(attributes: NodeAttributes, children: [InputNode])
+    case leaf(attributes: NodeAttributes, radius: FloatType)
 
     public var count: Int {
         switch self {
@@ -18,19 +32,19 @@ public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
     }
 
     public init(floatLiteral value: FloatType) {
-        self = .leaf(radius: value)
+        self = .leaf(attributes: NodeAttributes(), radius: value)
     }
 
     public init(arrayLiteral elements: InputNode...) {
-        self = .branch(children: elements)
+        self = .branch(attributes: NodeAttributes(), children: elements)
     }
 
     public func pack() -> CircleNode {
         switch self {
-        case let .leaf(name, radius):
+        case let .leaf(attributes, radius):
             let flatCircle = FlatCircle(radius: radius, center : .zero)
-            return CircleNode(name: name, state: .leaf, geometry: flatCircle)
-        case let .branch(name, children):
+            return CircleNode(attributes: attributes, state: .leaf, geometry: flatCircle)
+        case let .branch(attributes, children):
             var packedChildren = children.map { $0.pack() }
             packedChildren.orderSpatially(padding: 8)
             let outerCircle = group(packedChildren)
@@ -38,7 +52,7 @@ public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
                 packedChildren[index].center -= outerCircle.center
             }
             return CircleNode(
-                name: name,
+                attributes: attributes,
                 state: .branch(children: packedChildren),
                 geometry: FlatCircle(
                     radius: outerCircle.radius,
@@ -93,7 +107,8 @@ public extension Array where Element: Circle {
 
 public extension InputNode {
     func adjustRadiuses(width: FloatType, height: FloatType) -> InputNode {
-        let newRadius = min(width, height) / 2
+        let a = min(width, height) / 2
+        let newRadius = a - 100
         let currentCircle = self.pack()
         let outerCircleRadius = currentCircle.radius
         let scaleFactor = newRadius / outerCircleRadius
@@ -102,11 +117,11 @@ public extension InputNode {
 
     private func adjustRadiuses1(scaleFactor: FloatType) -> InputNode {
         switch self {
-        case let .leaf(name, radius):
-            return .leaf(name: name, radius: radius * scaleFactor)
-        case let .branch(name, children):
+        case let .leaf(attributes, radius):
+            return .leaf(attributes: attributes, radius: radius * scaleFactor)
+        case let .branch(attributes, children):
             let adjustedChildren = children.map { $0.adjustRadiuses1(scaleFactor: scaleFactor) }
-            return .branch(name: name, children: adjustedChildren)
+            return .branch(attributes: attributes, children: adjustedChildren)
         }
     }
 }

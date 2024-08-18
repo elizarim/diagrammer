@@ -1,20 +1,20 @@
 import Foundation
 
 public struct Size: Equatable {
-    var width: Distance
-    var height: Distance
+    public var width: Distance
+    public var height: Distance
 
     public init(width: Distance, height: Distance) {
         self.width = width
         self.height = height
     }
 
-    static var zero: Size { Size(width: .zero, height: .zero) }
+    public static var zero: Size { Size(width: .zero, height: .zero) }
 }
 
 public struct Rect: Equatable {
-    var origin: Point
-    var size: Size
+    public var origin: Point
+    public var size: Size
 
     static var zero: Rect { Rect(origin: .zero, size: .zero) }
 

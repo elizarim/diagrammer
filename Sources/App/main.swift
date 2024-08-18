@@ -2,6 +2,31 @@ import AppKit
 import CirclePacking
 import Foundation
 
+//let fileManager = FileManager.shared
+
+// #FF0000: red = 255, green = 0, blue = 0
+//let color = NSColor(red: 255.0 / 255.0, green: 0.0 / 255.0, blue: 0.0 / 255.0, alpha: 1.0)
+
+extension NSColor {
+    static func fromHEX(_ hex: String) -> NSColor {
+        var colorHex = hex
+        if colorHex.hasPrefix("#") {
+            colorHex.removeFirst()
+        }
+
+        let redHex = String(colorHex[colorHex.startIndex..<colorHex.index(colorHex.startIndex, offsetBy: 2)])
+        let greenHex = String(colorHex[colorHex.index(colorHex.startIndex, offsetBy: 2)..<colorHex.index(colorHex.startIndex, offsetBy: 4)])
+        let blueHex = String(colorHex[colorHex.index(colorHex.startIndex, offsetBy: 4)..<colorHex.index(colorHex.startIndex, offsetBy: 6)])
+
+
+        let red = CGFloat(Int(redHex, radix: 16) ?? 0) / 255.0
+        let green = CGFloat(Int(greenHex, radix: 16) ?? 0) / 255.0
+        let blue = CGFloat(Int(blueHex, radix: 16) ?? 0) / 255.0
+
+        return NSColor(red: red, green: green, blue: blue, alpha: 1.0)
+    }
+}
+
 let json = """
 {
   "name": "analytics",
@@ -10,26 +35,26 @@ let json = """
     {
       "name": "cluster",
       "children": [
-        {"name": "AgglomerativeCluster", "value": 57684},
-        {"name": "CommunityStructure", "value": 67384},
-        {"name": "HierarchicalCluster", "value": 28467},
-        {"name": "MergeEdge", "value": 13546}
+        {"name": "AgglomerativeCluster", "value": 7, "fill": "#FF0000", "stroke": "#FF0000"},
+        {"name": "CommunityStructure", "value": 7},
+        {"name": "HierarchicalCluster", "value": 4},
+        {"name": "MergeEdge", "value": 5}
       ]
     },
     {
       "name": "graph",
       "children": [
-        {"name": "BetweennessCentrality", "value": 37564},
-        {"name": "LinkDistance", "value": 47563},
-        {"name": "MaxFlowMinCut", "value": 84635},
-        {"name": "ShortestPaths", "value": 65743},
-        {"name": "SpanningTree", "value": 78546}
+        {"name": "BetweennessCentrality", "value": 7},
+        {"name": "LinkDistance", "value": 7},
+        {"name": "MaxFlowMinCut", "value": 4},
+        {"name": "ShortestPaths", "value": 5},
+        {"name": "SpanningTree", "value": 8}
       ]
     },
     {
       "name": "optimization",
       "children": [
-        {"name": "AspectRatioBanker", "value": 67843}
+        {"name": "AspectRatioBanker", "value": 2}
       ]
     }
   ]
@@ -50,6 +75,8 @@ extension InputNode: Decodable {
         case name
         case children
         case value
+        case fill
+        case stroke
     }
 
     public init(from decoder: Decoder) throws {
@@ -57,11 +84,17 @@ extension InputNode: Decodable {
         let name = try container.decodeIfPresent(String.self, forKey: .name)
         let children = try container.decodeIfPresent([InputNode].self, forKey: .children)
         let value = try container.decodeIfPresent(Double.self, forKey: .value)
+        let fillColor = try container.decodeIfPresent(String.self, forKey: .fill)
+        let strokeColor = try container.decodeIfPresent(String.self, forKey: .stroke)
+
+        let fill = fillColor.map { NSColor.fromHEX($0) }
+        let stroke = strokeColor.map { NSColor.fromHEX($0) }
+
         switch (children, value) {
         case let (.none, .some(value)):
-            self = .leaf(name: name, radius: value)
+            self = .leaf(attributes: NodeAttributes(name: name, fill: fill, stroke: stroke), radius: value)
         case let (.some(children), .none):
-            self = .branch(name: name, children: children)
+            self = .branch(attributes: NodeAttributes(name: name, fill: fill, stroke: stroke), children: children)
         case (.none, .none):
             throw DecodingError.dataCorrupted(
                 DecodingError.Context(
@@ -132,9 +165,11 @@ extension OuterCircle {
     }
 }
 
+var backRect = Rect(origin: Point(x: 0, y: 0), size: Size(width: 640, height: 480))
+
 func drawDiagram(drawingHandler: @escaping (NSRect) -> Bool) {
     let diagramURL = composeDiagramURL()
-    let diagramSize = NSSize(width: 1000, height: 1000)
+    let diagramSize = NSSize(width: backRect.size.width, height: backRect.size.height)
     let diagram = NSImage(size: diagramSize, flipped: false, drawingHandler: drawingHandler)
     do {
         try saveImage(diagram, at: diagramURL)
@@ -145,13 +180,20 @@ func drawDiagram(drawingHandler: @escaping (NSRect) -> Bool) {
 }
 
 let tree = try decoder.decode(InputNode.self, from: json)
-var changedCircles = tree.adjustRadiuses(width: 800, height: 800)
+var changedCircles = tree.adjustRadiuses(width: backRect.size.width, height: backRect.size.height)
 var circle = changedCircles.pack()
 
 func drawNode(_ node: CircleNode, parentCenter: Point = .zero) {
     let currentCenter = node.center + parentCenter
     let currentCircle = FlatCircle(radius: node.radius, center: currentCenter)
+
+    node.attributes.fill?.set()
+    currentCircle.bezierPath.fill()
+
+    node.attributes.stroke?.set()
     currentCircle.bezierPath.stroke()
+
+
     switch node.state {
     case .leaf:
         break
@@ -165,7 +207,6 @@ func drawNode(_ node: CircleNode, parentCenter: Point = .zero) {
 drawDiagram { rect in
     NSColor.black.set()
     rect.fill()
-    NSColor.yellow.set()
-    drawNode(circle, parentCenter: Rect(origin: Point(x: 100, y: 100), size: Size(width: 800, height: 800)).center)
+    drawNode(circle, parentCenter: backRect.center)
     return true
 }
