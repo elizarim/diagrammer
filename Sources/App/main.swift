@@ -1,38 +1,18 @@
 import AppKit
+import AppIO
 import CirclePacking
 import Foundation
 
-//let fileManager = FileManager.shared
+/// Possible errors in the app.
+enum AppError: Error, CustomStringConvertible {
+    case imageSerialization
+    case imageSaving(Error)
 
-// #FF0000: red = 255, green = 0, blue = 0
-//let color = NSColor(red: 255.0 / 255.0, green: 0.0 / 255.0, blue: 0.0 / 255.0, alpha: 1.0)
-
-extension NSColor {
-    static func fromHEX(_ hex: String) -> NSColor? {
-        var colorHex = hex
-        if colorHex.hasPrefix("#") {
-            colorHex.removeFirst()
+    var description: String {
+        switch self {
+        case .imageSerialization: return "Failed to convert image to data"
+        case let .imageSaving(reason): return "Failed to save image. \(reason)"
         }
-
-        guard colorHex.count == 6 else {
-            return nil
-        }
-
-        let redHex = String(colorHex[colorHex.startIndex..<colorHex.index(colorHex.startIndex, offsetBy: 2)])
-        let greenHex = String(colorHex[colorHex.index(colorHex.startIndex, offsetBy: 2)..<colorHex.index(colorHex.startIndex, offsetBy: 4)])
-        let blueHex = String(colorHex[colorHex.index(colorHex.startIndex, offsetBy: 4)..<colorHex.index(colorHex.startIndex, offsetBy: 6)])
-
-        guard let redInt = Int(redHex, radix: 16),
-              let greenInt = Int(greenHex, radix: 16),
-              let blueInt = Int(blueHex, radix: 16) else {
-            return nil
-        }
-
-        let red = CGFloat(Int(redHex, radix: 16) ?? 0) / 255.0
-        let green = CGFloat(Int(greenHex, radix: 16) ?? 0) / 255.0
-        let blue = CGFloat(Int(blueHex, radix: 16) ?? 0) / 255.0
-
-        return NSColor(red: red, green: green, blue: blue, alpha: 1.0)
     }
 }
 
@@ -63,7 +43,7 @@ let json = """
     {
       "name": "optimization",
       "children": [
-        {"name": "AspectRatioBanker", "value": 2, "fill": "#FF000"}
+        {"name": "AspectRatioBanker", "value": 2, "fill": "#FF0000"}
       ]
     }
   ]
@@ -77,62 +57,7 @@ do {
     print("Decoded nodes count:", node.count)
 } catch {
     print("Failed to decode input json:", error)
-}
-
-extension InputNode: Decodable {
-    private enum CodingKeys: String, CodingKey {
-        case name
-        case children
-        case value
-        case fill
-        case stroke
-    }
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let name = try container.decodeIfPresent(String.self, forKey: .name)
-        let children = try container.decodeIfPresent([InputNode].self, forKey: .children)
-        let value = try container.decodeIfPresent(Double.self, forKey: .value)
-        let fillColor = try container.decodeIfPresent(String.self, forKey: .fill)
-        let strokeColor = try container.decodeIfPresent(String.self, forKey: .stroke)
-
-        let fill = fillColor.flatMap { NSColor.fromHEX($0) }
-        let stroke = strokeColor.flatMap { NSColor.fromHEX($0) }
-
-        switch (children, value) {
-        case let (.none, .some(value)):
-            self = .leaf(attributes: NodeAttributes(name: name, fill: fill, stroke: stroke), radius: value)
-        case let (.some(children), .none):
-            self = .branch(attributes: NodeAttributes(name: name, fill: fill, stroke: stroke), children: children)
-        case (.none, .none):
-            throw DecodingError.dataCorrupted(
-                DecodingError.Context(
-                    codingPath: decoder.codingPath,
-                    debugDescription: "Node should contain children or value"
-                )
-            )
-        case (.some, .some):
-            throw DecodingError.dataCorrupted(
-                DecodingError.Context(
-                    codingPath: decoder.codingPath,
-                    debugDescription: "Node should contain either children or value"
-                )
-            )
-        }
-    }
-}
-
-/// Possible errors in the app.
-enum AppError: Error, CustomStringConvertible {
-    case imageSerialization
-    case imageSaving(Error)
-
-    var description: String {
-        switch self {
-        case .imageSerialization: return "Failed to convert image to data"
-        case let .imageSaving(reason): return "Failed to save image. \(reason)"
-        }
-    }
+    exit(65)
 }
 
 func saveImage(_ image: NSImage, at fileURL: URL) throws {

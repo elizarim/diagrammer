@@ -6,8 +6,9 @@ import PackageDescription
 let package = Package(
     name: "higapp",
     targets: [
+        .target(name: "AppIO", dependencies: ["CirclePacking"]),
         .target(name: "CirclePacking"),
         .testTarget(name: "CirclePackingTests", dependencies: ["CirclePacking"]),
-        .executableTarget(name: "App", dependencies: ["CirclePacking"]),
+        .executableTarget(name: "App", dependencies: ["AppIO", "CirclePacking"]),
     ]
 )
