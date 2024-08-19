@@ -8,16 +8,25 @@ import Foundation
 //let color = NSColor(red: 255.0 / 255.0, green: 0.0 / 255.0, blue: 0.0 / 255.0, alpha: 1.0)
 
 extension NSColor {
-    static func fromHEX(_ hex: String) -> NSColor {
+    static func fromHEX(_ hex: String) -> NSColor? {
         var colorHex = hex
         if colorHex.hasPrefix("#") {
             colorHex.removeFirst()
+        }
+
+        guard colorHex.count == 6 else {
+            return nil
         }
 
         let redHex = String(colorHex[colorHex.startIndex..<colorHex.index(colorHex.startIndex, offsetBy: 2)])
         let greenHex = String(colorHex[colorHex.index(colorHex.startIndex, offsetBy: 2)..<colorHex.index(colorHex.startIndex, offsetBy: 4)])
         let blueHex = String(colorHex[colorHex.index(colorHex.startIndex, offsetBy: 4)..<colorHex.index(colorHex.startIndex, offsetBy: 6)])
 
+        guard let redInt = Int(redHex, radix: 16),
+              let greenInt = Int(greenHex, radix: 16),
+              let blueInt = Int(blueHex, radix: 16) else {
+            return nil
+        }
 
         let red = CGFloat(Int(redHex, radix: 16) ?? 0) / 255.0
         let green = CGFloat(Int(greenHex, radix: 16) ?? 0) / 255.0
@@ -35,7 +44,7 @@ let json = """
     {
       "name": "cluster",
       "children": [
-        {"name": "AgglomerativeCluster", "value": 7, "fill": "#FF0000", "stroke": "#FF0000"},
+        {"name": "AgglomerativeCluster", "value": 7},
         {"name": "CommunityStructure", "value": 7},
         {"name": "HierarchicalCluster", "value": 4},
         {"name": "MergeEdge", "value": 5}
@@ -54,7 +63,7 @@ let json = """
     {
       "name": "optimization",
       "children": [
-        {"name": "AspectRatioBanker", "value": 2}
+        {"name": "AspectRatioBanker", "value": 2, "fill": "#FF000"}
       ]
     }
   ]
@@ -87,8 +96,8 @@ extension InputNode: Decodable {
         let fillColor = try container.decodeIfPresent(String.self, forKey: .fill)
         let strokeColor = try container.decodeIfPresent(String.self, forKey: .stroke)
 
-        let fill = fillColor.map { NSColor.fromHEX($0) }
-        let stroke = strokeColor.map { NSColor.fromHEX($0) }
+        let fill = fillColor.flatMap { NSColor.fromHEX($0) }
+        let stroke = strokeColor.flatMap { NSColor.fromHEX($0) }
 
         switch (children, value) {
         case let (.none, .some(value)):
@@ -205,7 +214,7 @@ func drawNode(_ node: CircleNode, parentCenter: Point = .zero) {
 }
 
 drawDiagram { rect in
-    NSColor.black.set()
+    NSColor.clear.set()
     rect.fill()
     drawNode(circle, parentCenter: backRect.center)
     return true

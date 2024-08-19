@@ -13,7 +13,7 @@ public struct NodeAttributes {
 
     public init(name: String? = nil, fill: NSColor? = nil, stroke: NSColor? = nil) {
         self.name = name
-        self.fill = fill ?? .black
+        self.fill = fill ?? .clear
         self.stroke = stroke ?? .yellow
     }
 }
@@ -107,8 +107,7 @@ public extension Array where Element: Circle {
 
 public extension InputNode {
     func adjustRadiuses(width: FloatType, height: FloatType) -> InputNode {
-        let a = min(width, height) / 2
-        let newRadius = a - 100
+        let newRadius = min(width, height) / 2
         let currentCircle = self.pack()
         let outerCircleRadius = currentCircle.radius
         let scaleFactor = newRadius / outerCircleRadius
