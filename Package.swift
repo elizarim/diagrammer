@@ -5,10 +5,20 @@ import PackageDescription
 
 let package = Package(
     name: "higapp",
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.0.0"),
+    ],
     targets: [
         .target(name: "AppIO", dependencies: ["CirclePacking"]),
         .target(name: "CirclePacking"),
         .testTarget(name: "CirclePackingTests", dependencies: ["CirclePacking"]),
-        .executableTarget(name: "App", dependencies: ["AppIO", "CirclePacking"]),
+        .executableTarget(
+            name: "App",
+            dependencies: [
+                "AppIO",
+                "CirclePacking",
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
+            ]
+        ),
     ]
 )
