@@ -44,6 +44,11 @@ let json = """
 }
 """.data(using: .utf8)!
 
+let arguments = CommandLine.arguments
+for (index, argument) in arguments.enumerated() {
+    print("Argument \(index): \(argument)")
+}
+
 do {
     let decoder = JSONDecoder()
     let tree = try decoder.decode(InputNode.self, from: json)
