@@ -3,17 +3,10 @@ import AppIO
 import CirclePacking
 import Foundation
 
-/// Possible errors in the app.
-enum AppError: Error, CustomStringConvertible {
-    case imageSerialization
-    case imageSaving(Error)
-
-    var description: String {
-        switch self {
-        case .imageSerialization: return "Failed to convert image to data"
-        case let .imageSaving(reason): return "Failed to save image. \(reason)"
-        }
-    }
+func composeDiagramURL() -> URL {
+    let fileManager = FileManager.default
+    let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
+    return documentsURL.appendingPathComponent("diagram.png")
 }
 
 let json = """
@@ -50,51 +43,21 @@ let json = """
 }
 """.data(using: .utf8)!
 
-let decoder = JSONDecoder()
-
 do {
-    let node = try decoder.decode(InputNode.self, from: json)
-    print("Decoded nodes count:", node.count)
-} catch {
-    print("Failed to decode input json:", error)
-    exit(65)
-}
-
-func saveImage(_ image: NSImage, at fileURL: URL) throws {
-    guard
-        let tiffData = image.tiffRepresentation,
-        let bitmap = NSBitmapImageRep(data: tiffData),
-        let pngData = bitmap.representation(using: .png, properties: [.compressionFactor: 1.0])
-    else {
-        throw AppError.imageSerialization
-    }
-    do {
-        try pngData.write(to: fileURL)
-    } catch {
-        throw AppError.imageSaving(error)
-    }
-}
-
-func composeDiagramURL() -> URL {
-    let fileManager = FileManager.default
-    let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
-    return documentsURL.appendingPathComponent("diagram.png")
-}
-
-let canvasRect = NSRect(origin: .zero, size: NSSize(width: 640, height: 480))
-let tree = try decoder.decode(InputNode.self, from: json)
-var packedTree = tree.pack(padding: 2)
-let diagram = Diagram(rootCircle: packedTree, canvasRect: canvasRect)
-
-func drawDiagram() {
+    let decoder = JSONDecoder()
+    let tree = try decoder.decode(InputNode.self, from: json)
+    let diagram = Diagram(
+        rootCircle: tree.pack(padding: 2),
+        canvasRect: NSRect(origin: .zero, size: NSSize(width: 640, height: 480))
+    )
     let diagramURL = composeDiagramURL()
-    let diagram = diagram.draw()
-    do {
-        try saveImage(diagram, at: diagramURL)
-        print("Diagram saved at \(diagramURL)")
-    } catch {
-        print(error)
-    }
+    let diagramImage = diagram.draw()
+    try diagramImage.save(at: diagramURL)
+    print("Diagram saved at \(diagramURL)")
+} catch NSImage.ImageSavingError.serialization {
+    print("Failed to convert image to data")
+} catch NSImage.ImageSavingError.filesystem(let reason) {
+    print("Failed to save image. \(reason)")
+} catch {
+    print("Error: \(error)")
 }
-
-drawDiagram()
