@@ -81,30 +81,14 @@ func composeDiagramURL() -> URL {
     return documentsURL.appendingPathComponent("diagram.png")
 }
 
-extension FlatCircle {
-    var bezierPath: NSBezierPath {
-        NSBezierPath(ovalIn: NSRect(
-            origin: NSPoint(x: center.x - radius, y: center.y - radius),
-            size: NSSize(width: radius * 2, height: radius * 2)
-        ))
-    }
-}
+let canvasRect = NSRect(origin: .zero, size: NSSize(width: 640, height: 480))
+let tree = try decoder.decode(InputNode.self, from: json)
+var packedTree = tree.pack(padding: 2)
+let diagram = Diagram(rootCircle: packedTree, canvasRect: canvasRect)
 
-extension OuterCircle {
-    var bezierPath: NSBezierPath {
-        NSBezierPath(ovalIn: NSRect(
-            origin: NSPoint(x: center.x - radius, y: center.y - radius),
-            size: NSSize(width: radius * 2, height: radius * 2)
-        ))
-    }
-}
-
-var backRect = Rect(origin: Point(x: 0, y: 0), size: Size(width: 640, height: 480))
-
-func drawDiagram(drawingHandler: @escaping (NSRect) -> Bool) {
+func drawDiagram() {
     let diagramURL = composeDiagramURL()
-    let diagramSize = NSSize(width: backRect.size.width, height: backRect.size.height)
-    let diagram = NSImage(size: diagramSize, flipped: false, drawingHandler: drawingHandler)
+    let diagram = diagram.draw()
     do {
         try saveImage(diagram, at: diagramURL)
         print("Diagram saved at \(diagramURL)")
@@ -113,34 +97,4 @@ func drawDiagram(drawingHandler: @escaping (NSRect) -> Bool) {
     }
 }
 
-let tree = try decoder.decode(InputNode.self, from: json)
-var changedCircles = tree.adjustRadiuses(width: backRect.size.width, height: backRect.size.height)
-var circle = changedCircles.pack()
-
-func drawNode(_ node: CircleNode, parentCenter: Point = .zero) {
-    let currentCenter = node.center + parentCenter
-    let currentCircle = FlatCircle(radius: node.radius, center: currentCenter)
-
-    node.attributes.fill?.set()
-    currentCircle.bezierPath.fill()
-
-    node.attributes.stroke?.set()
-    currentCircle.bezierPath.stroke()
-
-
-    switch node.state {
-    case .leaf:
-        break
-    case let .branch(children):
-        for child in children {
-            drawNode(child, parentCenter: currentCenter)
-        }
-    }
-}
-
-drawDiagram { rect in
-    NSColor.clear.set()
-    rect.fill()
-    drawNode(circle, parentCenter: backRect.center)
-    return true
-}
+drawDiagram()

@@ -39,35 +39,49 @@ public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
         self = .branch(attributes: NodeAttributes(), children: elements)
     }
 
-    public func pack() -> CircleNode {
+    public func pack(padding: Distance) -> CircleNode {
         switch self {
         case let .leaf(attributes, radius):
             let flatCircle = FlatCircle(radius: radius, center : .zero)
             return CircleNode(attributes: attributes, state: .leaf, geometry: flatCircle)
         case let .branch(attributes, children):
-            var packedChildren = children.map { $0.pack() }
-            packedChildren.orderSpatially(padding: 8)
-            let outerCircle = group(packedChildren)
-            for index in packedChildren.indices {
-                packedChildren[index].center -= outerCircle.center
-            }
-            return CircleNode(
-                attributes: attributes,
-                state: .branch(children: packedChildren),
-                geometry: FlatCircle(
-                    radius: outerCircle.radius,
-                    center: .zero
-                )
-            )
+            var packedChildren = children.map { $0.pack(padding: padding) }
+            packedChildren.orderSpatially(padding: padding)
+            return group(&packedChildren, attributes, padding)
         }
     }
 
-    private func group(_ circles: [CircleNode]) -> OuterCircle {
+    private func group(
+        _ circles: inout [CircleNode],
+        _ attributes: NodeAttributes,
+        _ padding: Distance
+    ) -> CircleNode {
         switch circles.count {
-        case 0:  return OuterCircle(for: nil, nil, padding: 8)
-        case 1:  return OuterCircle(for: circles[0], nil, padding: 8)
-        case 2:  return OuterCircle(for: circles[0], circles[1], padding: 8)
-        default: return OuterCircle(for: circles[0], circles[1], padding: 8).union(circles, padding: 8)
+        case 0:
+            return CircleNode(
+                attributes: attributes,
+                state: .branch(children: circles),
+                geometry: FlatCircle(radius: padding, center: .zero)
+            )
+        case 1:
+            return CircleNode(
+                attributes: attributes,
+                state: .branch(children: circles),
+                geometry: FlatCircle(radius: circles[0].radius + padding, center: .zero)
+            )
+        default:
+            let outerCircle = OuterCircle(for: circles[0], circles[1]).union(circles)
+            for index in circles.indices {
+                circles[index].center -= outerCircle.center
+            }
+            return CircleNode(
+                attributes: attributes,
+                state: .branch(children: circles),
+                geometry: FlatCircle(
+                    radius: outerCircle.radius + padding,
+                    center: .zero
+                )
+            )
         }
     }
 }
@@ -105,22 +119,26 @@ public extension Array where Element: Circle {
     }
 }
 
-public extension InputNode {
-    func adjustRadiuses(width: FloatType, height: FloatType) -> InputNode {
-        let newRadius = min(width, height) / 2
-        let currentCircle = self.pack()
-        let outerCircleRadius = currentCircle.radius
-        let scaleFactor = newRadius / outerCircleRadius
-        return self.adjustRadiuses1(scaleFactor: scaleFactor)
-    }
-
-    private func adjustRadiuses1(scaleFactor: FloatType) -> InputNode {
-        switch self {
-        case let .leaf(attributes, radius):
-            return .leaf(attributes: attributes, radius: radius * scaleFactor)
-        case let .branch(attributes, children):
-            let adjustedChildren = children.map { $0.adjustRadiuses1(scaleFactor: scaleFactor) }
-            return .branch(attributes: attributes, children: adjustedChildren)
-        }
-    }
-}
+//public extension CircleNode {
+//    func fit(to size: NSSize) -> CircleNode {
+//        let expectedRadius = min(size.width, size.height) / 2
+//        let actualRadius = radius
+//        let scaleFactor = expectedRadius / actualRadius
+//        return scale(with: scaleFactor)
+//    }
+//
+//    private func scale(with scaleFactor: FloatType) -> CircleNode {
+//        var scaledGeometry = geometry
+//        scaledGeometry.radius *= scaleFactor
+//        switch self.state {
+//        case .leaf:
+//            return CircleNode(attributes: attributes, state: .leaf, geometry: scaledGeometry)
+//        case let .branch(children):
+//            return CircleNode(
+//                attributes: attributes,
+//                state: .branch(children: children.map({ $0.scale(with: scaleFactor) })),
+//                geometry: scaledGeometry
+//            )
+//        }
+//    }
+//}

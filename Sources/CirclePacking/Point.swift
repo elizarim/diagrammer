@@ -24,5 +24,8 @@ public struct Point: Equatable {
     public static func *= (p: inout Point, m: Distance) { p.x *= m; p.y *= m }
     public static func /= (p: inout Point, d: Distance) { p.x /= d; p.y /= d }
 
+    public static func * (p: Point, d: Distance) -> Point { Point(x: p.x * d, y: p.y * d) }
+    public static func / (p: Point, d: Distance) -> Point { Point(x: p.x / d, y: p.y / d) }
+
     func distance(to point: Point) -> Distance { hypot(x - point.x, y - point.y) }
 }
