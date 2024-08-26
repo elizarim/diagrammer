@@ -39,15 +39,25 @@ public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
         self = .branch(attributes: NodeAttributes(), children: elements)
     }
 
-    public func pack(padding: Distance) -> CircleNode {
+    public func pack(padding: Distance, packFill: NSColor? = .black, packStroke: NSColor? = .yellow) -> CircleNode {
         switch self {
         case let .leaf(attributes, radius):
+            let updatedAttributes = NodeAttributes(
+                    name: attributes.name,
+                    fill: packFill,
+                    stroke: packStroke
+            )
             let flatCircle = FlatCircle(radius: radius, center : .zero)
-            return CircleNode(attributes: attributes, state: .leaf, geometry: flatCircle)
+            return CircleNode(attributes: updatedAttributes, state: .leaf, geometry: flatCircle)
         case let .branch(attributes, children):
-            var packedChildren = children.map { $0.pack(padding: padding) }
+            let updatedAttributes = NodeAttributes(
+                    name: attributes.name,
+                    fill: packFill,
+                    stroke: packStroke
+            )
+            var packedChildren = children.map { $0.pack(padding: padding, packFill: packFill, packStroke: packStroke) }
             packedChildren.orderSpatially(padding: padding)
-            return group(&packedChildren, attributes, padding)
+            return group(&packedChildren, updatedAttributes, padding)
         }
     }
 
@@ -119,26 +129,4 @@ public extension Array where Element: Circle {
     }
 }
 
-//public extension CircleNode {
-//    func fit(to size: NSSize) -> CircleNode {
-//        let expectedRadius = min(size.width, size.height) / 2
-//        let actualRadius = radius
-//        let scaleFactor = expectedRadius / actualRadius
-//        return scale(with: scaleFactor)
-//    }
-//
-//    private func scale(with scaleFactor: FloatType) -> CircleNode {
-//        var scaledGeometry = geometry
-//        scaledGeometry.radius *= scaleFactor
-//        switch self.state {
-//        case .leaf:
-//            return CircleNode(attributes: attributes, state: .leaf, geometry: scaledGeometry)
-//        case let .branch(children):
-//            return CircleNode(
-//                attributes: attributes,
-//                state: .branch(children: children.map({ $0.scale(with: scaleFactor) })),
-//                geometry: scaledGeometry
-//            )
-//        }
-//    }
-//}
+

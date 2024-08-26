@@ -60,7 +60,7 @@ private extension KeyedDecodingContainer<InputNode.CodingKeys> {
     }
 }
 
-private extension NSColor {
+public extension NSColor {
     enum DecodingError: Error {
         case noPrefix(value: String)
         case invalidLength(value: String, expectedLength: Int)

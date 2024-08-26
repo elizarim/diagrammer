@@ -4,37 +4,55 @@ import AppIO
 import CirclePacking
 import Foundation
 
-func composeDiagramURL() -> URL {
-    let fileManager = FileManager.default
-    let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
-    return documentsURL.appendingPathComponent("diagram.png")
-}
+    struct InputArguments: ParsableCommand {
+    @Option(name: .shortAndLong, help: "Path to the input JSON file")
+    var inputFilePath: String = "/Users/liza/Downloads/flare-2.json"
 
-func loadJsonFromFile() throws -> Data {
-    let fileURL = URL(fileURLWithPath: "/Users/liza/Downloads/flare-2.json")
-    guard FileManager.default.fileExists(atPath: fileURL.path) else {
-        throw NSError(domain: "FileError", code: 404, userInfo: [NSLocalizedDescriptionKey: "File not found at path: \(fileURL.path)"])
-    }
-    return try Data(contentsOf: fileURL)
-}
+    @Option(name: .shortAndLong, help: "Path to save the output diagram")
+    var outputFilePath: String = "/Users/liza/Documents/diagram.png"
 
-struct InputArguments: ParsableCommand {
     @Option(name: .shortAndLong, help: "Width of the canvas")
     var width: Int = 1640
 
     @Option(name: .shortAndLong, help: "Height of the canvas")
     var height: Int = 1480
 
+    @Option(name: .shortAndLong, help: "The background color in hex format")
+    var backColor: String = "#0000FF"
+
+    @Option(name: .shortAndLong, help: "The fill color in hex format")
+    var fillColor: String = "#FF0000"
+
+    @Option(name: .shortAndLong, help: "The stroke color in hex format")
+    var strokeColor: String = "#00FF00"
+
+    func composeDiagramURL() -> URL {
+        return URL(fileURLWithPath: outputFilePath)
+    }
+
+    func loadJsonFromFile() throws -> Data {
+        let fileURL = URL(fileURLWithPath: inputFilePath)
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            throw NSError(domain: "FileError", code: 404, userInfo: [NSLocalizedDescriptionKey: "File not found at path: \(fileURL.path)"])
+        }
+        return try Data(contentsOf: fileURL)
+    }
+
     func run() throws {
         do {
+            let backgroundColor = try NSColor.fromHex(backColor)
+            let colorFill = try NSColor.fromHex(fillColor)
+            let colorStroke = try NSColor.fromHex(strokeColor)
             let jsonData = try loadJsonFromFile()
             let decoder = JSONDecoder()
             let tree = try decoder.decode(InputNode.self, from: jsonData)
             let diagramURL = composeDiagramURL()
             let canvasSize = NSSize(width: width, height: height)
+            let packedTree = tree.pack(padding: 2, packFill: colorFill, packStroke: colorStroke)
             let diagram = Diagram(
-                rootCircle: tree.pack(padding: 2),
-                canvasRect: NSRect(origin: .zero, size: canvasSize)
+                rootCircle: packedTree,
+                canvasRect: NSRect(origin: .zero, size: canvasSize),
+                backgroundColor: backgroundColor
             )
             let diagramImage = diagram.draw()
             try diagramImage.save(at: diagramURL)
