@@ -3,7 +3,7 @@ import AppKit
 public typealias FloatType = Double
 
 extension FloatType {
-  static let epsilon = FloatType(Float.ulpOfOne)
+    static let epsilon = FloatType(Float.ulpOfOne)
 }
 
 public struct NodeAttributes {
@@ -39,21 +39,21 @@ public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
         self = .branch(attributes: NodeAttributes(), children: elements)
     }
 
-    public func pack(padding: Distance, packFill: NSColor? = .black, packStroke: NSColor? = .yellow) -> CircleNode {
+    public func pack(padding: Distance, packFill: NSColor?, packStroke: NSColor?) -> CircleNode {
         switch self {
         case let .leaf(attributes, radius):
             let updatedAttributes = NodeAttributes(
-                    name: attributes.name,
-                    fill: packFill,
-                    stroke: packStroke
+                name: attributes.name,
+                fill: packFill,
+                stroke: packStroke
             )
             let flatCircle = FlatCircle(radius: radius, center : .zero)
             return CircleNode(attributes: updatedAttributes, state: .leaf, geometry: flatCircle)
         case let .branch(attributes, children):
             let updatedAttributes = NodeAttributes(
-                    name: attributes.name,
-                    fill: packFill,
-                    stroke: packStroke
+                name: attributes.name,
+                fill: packFill,
+                stroke: packStroke
             )
             var packedChildren = children.map { $0.pack(padding: padding, packFill: packFill, packStroke: packStroke) }
             packedChildren.orderSpatially(padding: padding)
