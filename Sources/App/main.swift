@@ -26,7 +26,7 @@ struct InputArguments: ParsableCommand {
     @Option(name: .shortAndLong, help: "Stroke color in hex format")
     var stroke: String = "#FFFFFF"
 
-    @Option(name: .shortAndLong, help: "Font color in hex foormat")
+    @Option(name: .shortAndLong, help: "Font color in hex format")
     var textColor: String = "#0000cd"
 
     func composeDiagramURL() -> URL {
