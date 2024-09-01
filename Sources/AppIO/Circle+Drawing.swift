@@ -2,7 +2,7 @@ import AppKit
 import CirclePacking
 
 extension CircleNode {
-    func draw(translation: Point = .zero, scaledBy scaleFactor: FloatType) {
+    func draw(translation: Point = .zero, scaledBy scaleFactor: FloatType, fontColor: NSColor) {
         NSGraphicsContext.with(translation: translation) {
             attributes.fill?.set()
             bezierPath(scaledBy: scaleFactor).fill()
@@ -12,21 +12,21 @@ extension CircleNode {
             strokePath.stroke()
             switch state {
             case .leaf:
-                drawName(scaledBy: scaleFactor)
+                drawName(scaledBy: scaleFactor, color: fontColor)
             case let .branch(children):
                 for child in children {
-                    child.draw(translation: center*scaleFactor, scaledBy: scaleFactor)
+                    child.draw(translation: center*scaleFactor, scaledBy: scaleFactor, fontColor: fontColor)
                 }
             }
         }
     }
 
-    private func drawName(scaledBy scaleFactor: FloatType) {
+    private func drawName(scaledBy scaleFactor: FloatType, color: NSColor) {
         guard let text = attributes.name else {
             return
         }
         let attributes: [NSAttributedString.Key: Any] = [
-            .foregroundColor: NSColor.black,
+            .foregroundColor: attributes.textColor ?? color,
             .font: NSFont.systemFont(ofSize: 24)
         ]
         let textRect = rect(for: text, with: attributes, scaledBy: scaleFactor)

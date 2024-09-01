@@ -10,11 +10,13 @@ public struct NodeAttributes {
     public var name: String?
     public var fill: NSColor?
     public var stroke: NSColor?
+    public var textColor: NSColor?
 
-    public init(name: String? = nil, fill: NSColor? = nil, stroke: NSColor? = nil) {
+    public init(name: String? = nil, fill: NSColor? = nil, stroke: NSColor? = nil, textColor: NSColor? = nil) {
         self.name = name
-        self.fill = fill ?? .clear
-        self.stroke = stroke ?? .yellow
+        self.fill = fill
+        self.stroke = stroke
+        self.textColor = textColor
     }
 }
 
@@ -39,23 +41,31 @@ public enum InputNode: ExpressibleByFloatLiteral, ExpressibleByArrayLiteral {
         self = .branch(attributes: NodeAttributes(), children: elements)
     }
 
-    public func pack(padding: Distance, packFill: NSColor?, packStroke: NSColor?) -> CircleNode {
+    public func pack(padding: Distance, packFill: NSColor?, packStroke: NSColor?, packFontColor: NSColor?) -> CircleNode {
         switch self {
         case let .leaf(attributes, radius):
+            let fillColor = attributes.fill ?? packFill
+            let strokeColor = attributes.stroke ?? packStroke
+            let textColor = attributes.textColor ?? packFontColor
             let updatedAttributes = NodeAttributes(
                 name: attributes.name,
-                fill: packFill,
-                stroke: packStroke
+                fill: fillColor,
+                stroke: strokeColor,
+                textColor: textColor
             )
             let flatCircle = FlatCircle(radius: radius, center : .zero)
             return CircleNode(attributes: updatedAttributes, state: .leaf, geometry: flatCircle)
         case let .branch(attributes, children):
+            let fillColor = attributes.fill ?? packFill
+            let strokeColor = attributes.stroke ?? packStroke
+            let textColor = attributes.textColor ?? packFontColor
             let updatedAttributes = NodeAttributes(
                 name: attributes.name,
-                fill: packFill,
-                stroke: packStroke
+                fill: fillColor,
+                stroke: strokeColor,
+                textColor: textColor
             )
-            var packedChildren = children.map { $0.pack(padding: padding, packFill: packFill, packStroke: packStroke) }
+            var packedChildren = children.map { $0.pack(padding: padding, packFill: packFill, packStroke: packStroke, packFontColor: packFontColor) }
             packedChildren.orderSpatially(padding: padding)
             return group(&packedChildren, updatedAttributes, padding)
         }

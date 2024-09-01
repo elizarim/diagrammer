@@ -8,6 +8,7 @@ extension InputNode: Decodable {
         case value
         case fill
         case stroke
+        case textColor
     }
 
     public init(from decoder: Decoder) throws {
@@ -17,12 +18,13 @@ extension InputNode: Decodable {
         let value = try container.decodeIfPresent(Double.self, forKey: .value)
         let fillColor = try container.decodeColorIfPresent(forKey: .fill)
         let strokeColor = try container.decodeColorIfPresent(forKey: .stroke)
+        let titleColor = try container.decodeColorIfPresent(forKey: .textColor)
 
         switch (children, value) {
         case let (.none, .some(value)):
-            self = .leaf(attributes: NodeAttributes(name: name, fill: fillColor, stroke: strokeColor), radius: value)
+            self = .leaf(attributes: NodeAttributes(name: name, fill: fillColor, stroke: strokeColor, textColor: titleColor), radius: value)
         case let (.some(children), .none):
-            self = .branch(attributes: NodeAttributes(name: name, fill: fillColor, stroke: strokeColor), children: children)
+            self = .branch(attributes: NodeAttributes(name: name, fill: fillColor, stroke: strokeColor, textColor: titleColor), children: children)
         case (.none, .none):
             throw Self.error(codingPath: decoder.codingPath, described: "Node should contain children or value")
         case (.some, .some):

@@ -19,11 +19,11 @@ public struct Diagram {
         self.backgroundColor = backgroundColor ?? .black
     }
 
-    public func draw() -> NSImage {
+    public func draw(color: NSColor) -> NSImage {
         NSImage(size: canvasRect.size, flipped: false) { _ in
             backgroundColor.set()
             canvasRect.fill()
-            rootCircle.draw(translation: canvasRect.rawValue.center, scaledBy: scaleFactor)
+            rootCircle.draw(translation: canvasRect.rawValue.center, scaledBy: scaleFactor, fontColor: color )
             return true
         }
     }

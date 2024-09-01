@@ -17,14 +17,17 @@ struct InputArguments: ParsableCommand {
     @Option(name: .shortAndLong, help: "Height of the canvas")
     var height: Int = 1480
 
-    @Option(name: .shortAndLong, help: "The background color in hex format")
-    var background: String = "#0000FF"
+    @Option(name: .shortAndLong, help: "Background color in hex format")
+    var background: String = "#87CEFA"
 
-    @Option(name: .shortAndLong, help: "The fill color in hex format")
-    var fill: String = "#FF0000"
+    @Option(name: .shortAndLong, help: "Fill color in hex format")
+    var fill: String = "#6495ED"
 
-    @Option(name: .shortAndLong, help: "The stroke color in hex format")
-    var stroke: String = "#00FF00"
+    @Option(name: .shortAndLong, help: "Stroke color in hex format")
+    var stroke: String = "#FFFFFF"
+
+    @Option(name: .shortAndLong, help: "Font color in hex foormat")
+    var textColor: String = "#0000cd"
 
     func composeDiagramURL() -> URL {
         return URL(fileURLWithPath: output)
@@ -43,18 +46,19 @@ struct InputArguments: ParsableCommand {
             let backgroundColor = try NSColor.fromHex(background)
             let fillColor = try NSColor.fromHex(fill)
             let strokeColor = try NSColor.fromHex(stroke)
+            let fontColor = try NSColor.fromHex(textColor)
             let jsonData = try loadJsonFromFile()
             let decoder = JSONDecoder()
             let tree = try decoder.decode(InputNode.self, from: jsonData)
             let diagramURL = composeDiagramURL()
             let canvasSize = NSSize(width: width, height: height)
-            let packedTree = tree.pack(padding: 2, packFill: fillColor, packStroke: strokeColor)
+            let packedTree = tree.pack(padding: 2, packFill: fillColor, packStroke: strokeColor, packFontColor: fontColor)
             let diagram = Diagram(
                 rootCircle: packedTree,
                 canvasRect: NSRect(origin: .zero, size: canvasSize),
                 backgroundColor: backgroundColor
             )
-            let diagramImage = diagram.draw()
+            let diagramImage = diagram.draw(color: fontColor)
             try diagramImage.save(at: diagramURL)
             print("Diagram saved at \(diagramURL)")
         } catch NSImage.ImageSavingError.serialization {
