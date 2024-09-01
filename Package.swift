@@ -4,7 +4,11 @@
 import PackageDescription
 
 let package = Package(
-    name: "higapp",
+    name: "hig",
+    platforms: [.macOS(.v11)],
+    products: [
+        .executable(name: "hig", targets: ["App"])
+    ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.0.0"),
     ],

@@ -64,11 +64,11 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "--input &quot;/Users/pavel/Downloads/flare-2.json&quot;"
+            argument = "--input &quot;./Sources/App/Resources/demo-diagram.json&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--output &quot;/Users/pavel/Downloads/diagram.png&quot;"
+            argument = "--output &quot;~/Downloads/diagram.png&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
