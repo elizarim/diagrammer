@@ -1,4 +1,4 @@
-class HigApp < Formula
+class Higapp < Formula
   desc "Generates image with hierarchy diagram using nested circles."
   homepage "https://github.com/elizarim/higapp"
   url "https://github.com/elizarim/higapp/releases/download/0.0.1/higapp-0.0.1.tar.gz"
